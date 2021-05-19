@@ -1,0 +1,7 @@
+ 
+{
+    "section": "other",
+    "path": "/admin/adyen",
+    "icon": "extensions-ic",
+    "titleId": "admin/adyen.admin-menu-button"
+  }

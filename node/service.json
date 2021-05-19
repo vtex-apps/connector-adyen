@@ -1,0 +1,15 @@
+{
+  "stack": "nodejs",
+  "memory": 512,
+  "ttl": 43200,
+  "timeout": 40,
+  "minReplicas": 2,
+  "maxReplicas": 12,
+  "workers": 1,
+  "routes": {
+    "adyenWebhook": {
+      "path": "/_v/api/vtex.connector-adyen/v1/hook",
+      "public": true
+    }
+  }
+}

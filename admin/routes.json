@@ -1,0 +1,9 @@
+{
+  "admin.app.adyen": {
+    "around": ["layout"],
+    "path": "/admin/app/adyen/"
+  },
+  "layout": {
+    "component": "Admin"
+  }
+}

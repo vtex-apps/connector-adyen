@@ -1,0 +1,25 @@
+{
+  "dependencies": {
+    "@vtex/payment-provider": "^1.2.4-beta",
+    "axios": "^0.21.1",
+    "co-body": "^6.0.0",
+    "ramda": "^0.25.0",
+    "typescript-string-enums": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/co-body": "^0.0.3",
+    "@types/jest": "^24.0.18",
+    "@types/node": "^12.0.0",
+    "@types/ramda": "types/npm-ramda#dist",
+    "@vtex/api": "6.42.1",
+    "@vtex/test-tools": "^1.0.0",
+    "typescript": "3.9.7",
+    "vtex.apps-graphql": "http://vtex.vtexassets.com/_v/public/typings/v1/vtex.apps-graphql@2.8.0/public/@types/vtex.apps-graphql",
+    "vtex.connector-adyen": "https://sdb--sandboxusdev.myvtex.com/_v/private/typings/linked/v1/vtex.connector-adyen@1.0.3+build1621355170/public/@types/vtex.connector-adyen",
+    "vtex.styleguide": "http://vtex.vtexassets.com/_v/public/typings/v1/vtex.styleguide@9.141.1/public/@types/vtex.styleguide"
+  },
+  "scripts": {
+    "lint": "tsc --noEmit --pretty"
+  },
+  "version": "1.0.3"
+}
