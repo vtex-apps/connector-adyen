@@ -1,5 +1,5 @@
 {
-  "name": "Adyen",
+  "name": "Adyen Payments",
   "implementsSplit": true,
   "usesAutoSettleOptions": true,
   "paymentMethods": [
