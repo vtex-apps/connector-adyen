@@ -1,79 +1,103 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports */
-import { SecureExternalClient } from '@vtex/payment-provider'
-import { InstanceOptions, IOContext, RequestConfig } from '@vtex/api'
+import { ExternalClient, InstanceOptions, IOContext } from '@vtex/api'
 
-const CHECKOUT_API_KEY =
-  'AQEmhmfuXNWTK0Qc+iSDhmEuouq5R5xIAzvm2vHcSangnOYX0q2Z90wQwV1bDb7kfNy1WIxIIkxgBw==-63O7GcdLMtDgTS27uIR9QZEbvH2k89LHOgqQxyajFHs=-m5gbN:#jCUY{H;c>'
+const TEST_URL = 'http://checkout-test.adyen.com' as const
 
-export default class Adyen extends SecureExternalClient {
+export default class Adyen extends ExternalClient {
   constructor(protected context: IOContext, options?: InstanceOptions) {
-    super('http://', context, options)
+    super('', context, options)
   }
 
-  public async payment(
-    data: AdyenPayment,
-    secureProxyUrl: string
-  ): Promise<AdyenPaymentResponse> {
-    console.log(data)
-
-    return this.http.post(`checkout-test.adyen.com/v67/payments`, data, {
-      headers: {
-        'X-API-Key': CHECKOUT_API_KEY,
-        'X-Vtex-Use-Https': true,
-      },
-      secureProxy: secureProxyUrl,
-      metric: 'Adyen-payment',
-    } as RequestConfig)
+  private getEndpoint(settings: any) {
+    return this.context.production ? settings.productionAPI : TEST_URL
   }
 
   public async capture(
-    data: AdyenCaptureRequest
-  ): Promise<AdyenModificationResponse> {
-    return this.http.post(
-      `pal-test.adyen.com/pal/servlet/Payment/v64/capture
-    `,
-      data,
-      {
-        headers: {
-          'X-API-Key': CHECKOUT_API_KEY,
-          'X-Vtex-Use-Https': true,
-        },
-        metric: 'Adyen-capture',
-      }
-    )
+    pspReference: string,
+    data: AdyenCaptureRequest,
+    appSettings: AppSettings
+  ): Promise<AdyenCaptureResponse | null> {
+    try {
+      return await this.http.post(
+        `${this.getEndpoint(appSettings)}/v67/payments/${pspReference}/captures
+        `,
+        data,
+        {
+          headers: {
+            'X-API-Key': appSettings.apiKey,
+            'X-Vtex-Use-Https': 'true',
+            'Content-Type': 'application/json',
+          },
+          metric: 'connectorAdyen-capture',
+        }
+      )
+    } catch (error) {
+      this.context.logger.error({
+        error,
+        message: 'connecotAdyen-adyenSettleRequestError',
+        data: { pspReference, request: data },
+      })
+
+      return null
+    }
   }
 
   public async cancel(
-    data: AdyenModificationRequest
-  ): Promise<AdyenModificationResponse> {
-    return this.http.post(
-      `pal-test.adyen.com/pal/servlet/Payment/v64/cancel
-    `,
-      data,
-      {
-        headers: {
-          'X-API-Key': CHECKOUT_API_KEY,
-          'X-Vtex-Use-Https': true,
-        },
-        metric: 'Adyen-cancel',
-      }
-    )
+    pspReference: string,
+    data: AdyenCancelRequest,
+    appSettings: AppSettings
+  ): Promise<AdyenCancelResponse | null> {
+    try {
+      return await this.http.post(
+        `${this.getEndpoint(appSettings)}/v67/payments/${pspReference}/cancels`,
+        data,
+        {
+          headers: {
+            'X-API-Key': appSettings.apiKey,
+            'X-Vtex-Use-Https': 'true',
+            'Content-Type': 'application/json',
+          },
+          metric: 'connectorAdyen-cancel',
+        }
+      )
+    } catch (error) {
+      this.context.logger.error({
+        error,
+        message: 'connectorAdyen-adyenCancelRequestError',
+        data: { pspReference, request: data },
+      })
+
+      return null
+    }
   }
 
   public async refund(
-    data: AdyenRefundRequest
-  ): Promise<AdyenModificationResponse> {
-    return this.http.post(
-      `pal-test.adyen.com/pal/servlet/Payment/v64/cancel
+    pspReference: string,
+    data: AdyenRefundRequest,
+    appSettings: AppSettings
+  ): Promise<AdyenRefundResponse | null> {
+    try {
+      return await this.http.post(
+        `${this.getEndpoint(appSettings)}/v67/payments/${pspReference}/refunds
     `,
-      data,
-      {
-        headers: {
-          'X-API-Key': CHECKOUT_API_KEY,
-          'X-Vtex-Use-Https': true,
-        },
-        metric: 'Adyen-cancel',
-      }
-    )
+        data,
+        {
+          headers: {
+            'X-API-Key': appSettings.apiKey,
+            'X-Vtex-Use-Https': 'true',
+            'Content-Type': 'application/json',
+          },
+          metric: 'connectorAdyen-refund',
+        }
+      )
+    } catch (error) {
+      this.context.logger.error({
+        error,
+        message: 'connectorAdyen-adyenRefundRequestError',
+        data: { pspReference, request: data },
+      })
+
+      return null
+    }
   }
 }

@@ -1,5 +1,5 @@
 query AppSettings($version: String) {
-  appSettings(app: "vtexus.connector-adyen", version: $version)
+  appSettings(app: "vtex.connector-adyen", version: $version)
     @context(provider: "vtex.apps-graphql") {
     message
   }

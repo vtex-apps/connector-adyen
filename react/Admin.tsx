@@ -8,9 +8,9 @@ import {
   PageBlock,
   Input,
   Button,
-  Toggle,
   ToastProvider,
   ToastConsumer,
+  Toggle,
 } from 'vtex.styleguide'
 import { useRuntime } from 'vtex.render-runtime'
 
@@ -22,10 +22,14 @@ const Admin: FC = () => {
   const { account } = useRuntime()
 
   const [settingsState, setSettingsState] = useState({
-    adyenToken: '',
+    merchantAccount: '',
+    apiKey: '',
+    productionAPI: '',
+    webhookUsername: '',
+    webhookPassword: '',
     vtexAppKey: '',
     vtexAppToken: '',
-    isLive: false,
+    useAdyenPlatforms: false,
   })
 
   const [settingsLoading, setSettingsLoading] = useState(false)
@@ -95,17 +99,89 @@ const Admin: FC = () => {
               <section className="pb4">
                 <Input
                   label={formatMessage({
-                    id: 'admin/adyen.settings.adyenToken.label',
+                    id: 'admin/adyen.settings.adyenMerchantAccount.label',
                   })}
-                  value={settingsState.adyenToken}
+                  value={settingsState.merchantAccount}
                   onChange={(e: React.FormEvent<HTMLInputElement>) =>
                     setSettingsState({
                       ...settingsState,
-                      adyenToken: e.currentTarget.value,
+                      merchantAccount: e.currentTarget.value,
                     })
                   }
                   helpText={formatMessage({
-                    id: 'admin/adyen.settings.adyenToken.helpText',
+                    id: 'admin/adyen.settings.adyenMerchantAccount.helpText',
+                  })}
+                  token
+                />
+              </section>
+              <section className="pb4">
+                <Input
+                  label={formatMessage({
+                    id: 'admin/adyen.settings.adyenApiKey.label',
+                  })}
+                  value={settingsState.apiKey}
+                  onChange={(e: React.FormEvent<HTMLInputElement>) =>
+                    setSettingsState({
+                      ...settingsState,
+                      apiKey: e.currentTarget.value,
+                    })
+                  }
+                  helpText={formatMessage({
+                    id: 'admin/adyen.settings.adyenApiKey.helpText',
+                  })}
+                  token
+                />
+              </section>
+              <section className="pb4">
+                <Input
+                  label={formatMessage({
+                    id: 'admin/adyen.settings.adyenProductionAPI.label',
+                  })}
+                  value={settingsState.productionAPI}
+                  onChange={(e: React.FormEvent<HTMLInputElement>) =>
+                    setSettingsState({
+                      ...settingsState,
+                      productionAPI: e.currentTarget.value,
+                    })
+                  }
+                  helpText={formatMessage({
+                    id: 'admin/adyen.settings.adyenProductionAPI.helpText',
+                  })}
+                  token
+                />
+              </section>
+              <section className="pb4">
+                <Input
+                  label={formatMessage({
+                    id: 'admin/adyen.settings.adyenWebhookUsername.label',
+                  })}
+                  value={settingsState.webhookUsername}
+                  onChange={(e: React.FormEvent<HTMLInputElement>) =>
+                    setSettingsState({
+                      ...settingsState,
+                      webhookUsername: e.currentTarget.value,
+                    })
+                  }
+                  helpText={formatMessage({
+                    id: 'admin/adyen.settings.adyenMerchantAccount.helpText',
+                  })}
+                  token
+                />
+              </section>
+              <section className="pb4">
+                <Input
+                  label={formatMessage({
+                    id: 'admin/adyen.settings.adyenWebhookPassword.label',
+                  })}
+                  value={settingsState.webhookPassword}
+                  onChange={(e: React.FormEvent<HTMLInputElement>) =>
+                    setSettingsState({
+                      ...settingsState,
+                      webhookPassword: e.currentTarget.value,
+                    })
+                  }
+                  helpText={formatMessage({
+                    id: 'admin/adyen.settings.adyenMerchantAccount.helpText',
                   })}
                   token
                 />
@@ -125,7 +201,7 @@ const Admin: FC = () => {
                   token
                 />
               </section>
-              <section className="pb4">
+              <section className="pb6">
                 <Input
                   label={formatMessage({
                     id: 'admin/adyen.settings.vtexAppToken.label',
@@ -143,32 +219,39 @@ const Admin: FC = () => {
                   token
                 />
               </section>
-              <section className="pv4">
+              <section className="pb4">
                 <Toggle
-                  semantic
-                  label={formatMessage({
-                    id: 'admin/adyen.settings.isLive.label',
-                  })}
+                  label={
+                    settingsState.useAdyenPlatforms
+                      ? formatMessage({
+                          id: 'admin/adyen.settings.adyenPlatforms.active',
+                        })
+                      : formatMessage({
+                          id: 'admin/adyen.settings.adyenPlatforms.inactive',
+                        })
+                  }
                   size="large"
-                  checked={settingsState.isLive}
-                  onChange={() => {
+                  checked={settingsState.useAdyenPlatforms}
+                  onChange={() =>
                     setSettingsState({
                       ...settingsState,
-                      isLive: !settingsState.isLive,
+                      useAdyenPlatforms: !settingsState.useAdyenPlatforms,
                     })
-                  }}
+                  }
                   helpText={formatMessage({
-                    id: 'admin/adyen.settings.isLive.helpText',
+                    id: 'admin/adyen.settings.adyenPlatforms.helpText',
                   })}
                 />
               </section>
+
               <section className="pt4">
                 <Button
                   variation="primary"
                   onClick={() => handleSaveSettings(showToast)}
                   isLoading={settingsLoading}
                   disabled={
-                    !settingsState.adyenToken ||
+                    !settingsState.merchantAccount ||
+                    !settingsState.apiKey ||
                     !settingsState.vtexAppKey ||
                     !settingsState.vtexAppToken
                   }

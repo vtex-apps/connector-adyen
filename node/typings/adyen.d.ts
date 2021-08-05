@@ -1,3 +1,42 @@
+interface StoredTransaction {
+  authorizationRequest: import('@vtex/payment-provider').AuthorizationRequest
+  authorization?: AdyenHookNotification
+  capture?: AdyenHookNotification
+  cancellation?: AdyenHookNotification
+  refund?: AdyenHookNotification
+}
+
+AuthorizationRequest
+interface AdyenHookNotification {
+  live: 'true' | 'false'
+  notificationItems: [
+    {
+      NotificationRequestItem: {
+        amount: {
+          currency: string
+          value: number
+        }
+        eventCode: EventCode
+        eventDate: string
+        merchantAccountCode: string
+        merchantReference: string
+        originalReference: string
+        paymentMethod: string
+        pspReference: string
+        reason: string
+        success: 'true' | 'false'
+      }
+    }
+  ]
+}
+
+type EventCode =
+  | 'CAPTURE'
+  | 'CAPTURE_FAILED'
+  | 'REFUND'
+  | 'CANCELLATION'
+  | 'AUTHORISATION'
+
 interface AdyenPaymentResponse {
   action?: Action
   additionalData?: any
@@ -77,14 +116,14 @@ interface PaymentType {
 }
 
 interface AdyenCard extends PaymentType {
-  number: string
-  expiryMonth: string
-  expiryYear: string
-  cvc: string
+  encryptedCardNumber: string
+  encryptedExpiryMonth: string
+  encryptedExpiryYear: string
+  encryptedSecurityCode: string
   holderName?: string
 }
 
-type PaymentMethod = AdyenCard
+type PaymentMethod = AdyenCard | PaymentType
 
 interface AdyenModificationRequest {
   merchantAccount: string
@@ -98,12 +137,28 @@ interface AdyenModificationRequest {
   uniqueTerminalId?: string
 }
 
-interface AdyenRefundRequest extends AdyenModificationRequest {
-  modificationAmount: any
+interface AdyenCaptureRequest {
+  amount: Amount
+  merchantAccount: string
+  reference?: string
+  splits?: Split[]
 }
 
-interface AdyenCaptureRequest extends AdyenModificationRequest {
-  modificationAmount: any
+interface AdyenCancelRequest {
+  merchantAccount: string
+  reference?: string
+}
+
+interface AdyenPaymentRequest {
+  data: AdyenPayment
+  settings: AppSettings
+  secureProxyUrl: string | undefined
+}
+
+interface AdyenRefundRequest {
+  amount: Amount
+  merchantAccount: string
+  reference?: string
 }
 
 interface AdyenSplit {
@@ -114,8 +169,29 @@ interface AdyenSplit {
   type: string
 }
 
-interface AdyenModificationResponse {
+interface AdyenCaptureResponse {
+  amount: Amount
+  merchantAccount: string
+  paymentPspReference: string
   pspReference: string
-  response: string
-  additionalData?: string
+  reference?: string
+  splits?: Split[]
+  status: 'received'
+}
+
+interface AdyenRefundResponse {
+  amount: Amount
+  merchantAccount: string
+  paymentPspReference: string
+  pspReference: string
+  reference?: string
+  status: 'received'
+}
+
+interface AdyenCancelResponse {
+  merchantAccount: string
+  paymentPspReference: string
+  pspReference: string
+  reference?: string
+  status: 'received'
 }

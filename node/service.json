@@ -8,7 +8,7 @@
   "workers": 1,
   "routes": {
     "adyenWebhook": {
-      "path": "/_v/api/vtex.connector-adyen/v1/hook",
+      "path": "/_v/api/connector-adyen/v0/hook",
       "public": true
     }
   }

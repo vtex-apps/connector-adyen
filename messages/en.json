@@ -1,0 +1,23 @@
+{
+  "admin/adyen.title": "Adyen",
+  "admin/adyen.admin-menu-button": "Adyen",
+  "admin/adyen.settings.adyenMerchantAccount.label": "Adyen Merchant Account",
+  "admin/adyen.settings.adyenMerchantAccount.helpText": "Enter your Adyen Merchant Account",
+  "admin/adyen.settings.adyenApiKey.label": "Adyen API Key",
+  "admin/adyen.settings.adyenApiKey.helpText": "Enter your Adyen API key",
+  "admin/adyen.settings.adyenWebhookUsername.label": "Adyen Webhook Username",
+  "admin/adyen.settings.adyenWebhookUsername.helpText": "Enter your Adyen webhook user name",
+  "admin/adyen.settings.adyenWebhookPassword.label": "Adyen Webhook Password",
+  "admin/adyen.settings.adyenWebhookPassword.helpText": "Enter your Adyen webhook password",
+  "admin/adyen.settings.vtexAppKey.label": "VTEX App Key",
+  "admin/adyen.settings.vtexAppToken.label": "VTEX App Token",
+  "admin/adyen.settings.vtexAppToken.helpText": "Enter a VTEX app key and token pair for this account. If you are configuring a marketplace-seller relationship, use a key and token that have permissions for all related accounts.",
+  "admin/adyen.settings.productionAPI.label": "Adyen API Production Endpoint",
+  "admin/adyen.settings.productionAPI.helpText": "Enter your Adyen API production endpoint",
+  "admin/adyen.settings.adyenPlatforms.active": "Using Adyen for Platforms",
+  "admin/adyen.settings.adyenPlatforms.inactive": "Not using Adyen for Platforms",
+  "admin/adyen.settings.adyenPlatforms.helpText": "Activate to use Adyen for Platforms to processs split payouts. The Adyen for Platforms app must be installed",
+  "admin/adyen.saveSettings.buttonText": "Save settings",
+  "admin/adyen.saveSettings.success": "Settings have been saved",
+  "admin/adyen.saveSettings.failure": "Error saving settings (see console for details)"
+}

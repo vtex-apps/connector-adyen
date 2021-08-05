@@ -1,0 +1,23 @@
+{
+  "admin/adyen.title": "admin/adyen.title",
+  "admin/adyen.admin-menu-button": "admin/adyen.admin-menu-button",
+  "admin/adyen.settings.adyenMerchantAccount.label": "admin/adyen.settings.adyenMerchantAccount.label",
+  "admin/adyen.settings.adyenMerchantAccount.helpText": "admin/adyen.settings.adyenMerchantAccount.helpText",
+  "admin/adyen.settings.adyenApiKey.label": "admin/adyen.settings.adyenApiKey.label",
+  "admin/adyen.settings.adyenApiKey.helpText": "admin/adyen.settings.adyenApiKey.helpText",
+  "admin/adyen.settings.adyenWebhookUsername.label": "admin/adyen.settings.adyenWebhookUsername.label",
+  "admin/adyen.settings.adyenWebhookUsername.helpText": "admin/adyen.settings.adyenWebhookUsername.helpText",
+  "admin/adyen.settings.adyenWebhookPassword.label": "admin/adyen.settings.adyenWebhookPassword.label",
+  "admin/adyen.settings.adyenWebhookPassword.helpText": "admin/adyen.settings.adyenWebhookPassword.helpText",
+  "admin/adyen.settings.vtexAppKey.label": "admin/adyen.settings.vtexAppKey.label",
+  "admin/adyen.settings.vtexAppToken.label": "admin/adyen.settings.vtexAppToken.label",
+  "admin/adyen.settings.vtexAppToken.helpText": "admin/adyen.settings.vtexAppToken.helpText",
+  "admin/adyen.settings.productionAPI.label": "admin/adyen.settings.enableTaxCalculation.label",
+  "admin/adyen.settings.productionAPI.helpText": "admin/adyen.settings.enableTaxCalculation.helpText",
+  "admin/adyen.settings.adyenPlatforms.active": "admin/adyen.settings.adyenPlatforms.helpText",
+  "admin/adyen.settings.adyenPlatforms.inactive": "admin/adyen.settings.adyenPlatforms.helpText",
+  "admin/adyen.settings.adyenPlatforms.helpText": "admin/adyen.settings.adyenPlatforms.helpText",
+  "admin/adyen.saveSettings.buttonText": "admin/adyen.saveSettings.buttonText",
+  "admin/adyen.saveSettings.success": "admin/adyen.saveSettings.success",
+  "admin/adyen.saveSettings.failure": "admin/adyen.saveSettings.failure"
+}

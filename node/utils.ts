@@ -7,3 +7,7 @@ export const randomString = () => {
 export const randomUrl = () => {
   return `https://${randomString()}.com`
 }
+
+export const priceInCents = (value: number) => {
+  return Math.round(value * 100)
+}

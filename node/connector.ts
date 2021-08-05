@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/consistent-type-imports */
 
 import {
@@ -14,214 +15,323 @@ import {
   SettlementResponse,
   Settlements,
   isCardAuthorization,
-  isTokenizedCard,
   Authorizations,
-  ApproveSettlementArgs,
-  ApproveRefundArgs,
+  CardAuthorization,
+  PendingAuthorization,
+  RedirectResponse,
 } from '@vtex/payment-provider'
 
-import { randomString } from './utils'
-import { executeAuthorization } from './flow'
 import { Clients } from './clients'
+import { adyenService } from './services/adyen'
 
-const merchantAccount = 'StevenBowenECOM'
+const APP_ID = process.env.VTEX_APP_ID as string
 
 export default class Adyen extends PaymentProvider<Clients> {
   public async authorize(
     authorization: AuthorizationRequest
   ): Promise<AuthorizationResponse> {
-    if (this.isTestSuite) {
-      return executeAuthorization(authorization, response =>
-        this.callback(authorization, response)
-      )
-    }
-
     const {
-      clients: { adyen },
-      // vtex: { logger },
+      clients: { adyenSecure: adyen, vbase, apps },
+      vtex: { logger },
     } = this.context
 
-    // GET TRANSACTION DETAILS
+    const settings: AppSettings = await apps.getAppSettings(APP_ID)
+    const transaction = await vbase.getJSON<StoredTransaction | null>(
+      'adyen',
+      authorization.paymentId,
+      true
+    )
 
-    let adyenResponse: AdyenPaymentResponse | null = null
+    logger.info({
+      message: 'connectorAdyen-paymentRequest',
+      data: { authorization, transaction },
+    })
 
-    if (isCardAuthorization(authorization)) {
-      const { card } = authorization
+    if (transaction?.authorization) {
+      const [
+        {
+          NotificationRequestItem: { pspReference, reason, success },
+        },
+      ] = transaction.authorization.notificationItems
 
-      if (!isTokenizedCard(card)) {
-        const {
-          number,
-          expiration: { month: expiryMonth, year: expiryYear },
-          holder: holderName,
-          csc: cvc,
-        } = card
+      if (success === 'true') {
+        return Authorizations.approveCard(authorization as CardAuthorization, {
+          tid: pspReference,
+          authorizationId: pspReference,
+        })
+      }
 
-        const {
-          value,
-          currency,
-          reference,
-          returnUrl,
-          secureProxyUrl,
-        } = authorization
-
-        try {
-          adyenResponse = await adyen.payment(
-            {
-              merchantAccount,
-              amount: { value, currency },
-              reference,
-              paymentMethod: {
-                type: 'scheme',
-                number,
-                expiryMonth,
-                expiryYear,
-                cvc,
-                holderName,
-              },
-              returnUrl: returnUrl ?? '',
-            },
-            secureProxyUrl as string
-          )
-        } catch (err) {
-          console.log(err)
-        }
-
-        if (!adyenResponse) throw new Error('No Adyen response')
-
-        const { resultCode, pspReference, refusalReason } = adyenResponse
-
-        if (resultCode === 'Authorised') {
-          return Authorizations.approveCard(authorization, {
-            tid: pspReference,
-            authorizationId: pspReference,
-          })
-        }
-
-        if (
-          resultCode === 'Error' ||
-          resultCode === 'Refused' ||
-          resultCode === 'Cancelled'
-        ) {
-          return Authorizations.deny(authorization, {
-            code: resultCode,
-            message: refusalReason,
-          })
-        }
+      if (success === 'false') {
+        return Authorizations.deny(authorization, {
+          message: reason,
+        })
       }
     }
 
-    throw new Error('Not implemented')
+    if (!isCardAuthorization(authorization)) {
+      return Authorizations.deny(authorization, {
+        message: 'Payment method not supported',
+      })
+    }
+
+    await vbase.saveJSON<StoredTransaction | null>(
+      'adyen',
+      authorization.paymentId,
+      { authorizationRequest: authorization }
+    )
+
+    const adyenPaymentRequest = await adyenService.buildPaymentRequest({
+      ctx: this.context,
+      authorization,
+      settings,
+    })
+
+    const adyenResponse = await adyen.payment(adyenPaymentRequest)
+
+    if (!adyenResponse) {
+      return Authorizations.deny(authorization as CardAuthorization, {
+        message: 'No Adyen Payment response',
+      })
+    }
+
+    const { resultCode, pspReference, refusalReason } = adyenResponse
+
+    if (adyenResponse.action?.url) {
+      return {
+        paymentId: authorization.paymentId,
+        status: 'undefined',
+        redirectUrl: adyenResponse.action.url,
+      } as RedirectResponse
+    }
+
+    if (['Error', 'Refused', 'Cancelled'].includes(resultCode)) {
+      return Authorizations.deny(authorization as CardAuthorization, {
+        tid: pspReference,
+        message: refusalReason,
+      })
+    }
+
+    return {
+      paymentId: authorization.paymentId,
+      status: 'undefined',
+      tid: pspReference,
+    } as PendingAuthorization
   }
 
   public async cancel(
     cancellation: CancellationRequest
   ): Promise<CancellationResponse> {
-    if (this.isTestSuite) {
-      return Cancellations.approve(cancellation, {
-        cancellationId: randomString(),
+    const {
+      clients: { adyen, vbase, apps },
+      vtex: { logger },
+    } = this.context
+
+    const storedTransaction = await vbase.getJSON<StoredTransaction | null>(
+      'adyen',
+      cancellation.paymentId,
+      true
+    )
+
+    logger.info({
+      message: 'connectorAdyen-cancelRequest',
+      data: { cancellation, storedTransaction },
+    })
+
+    if (!storedTransaction?.authorization) {
+      logger.error({
+        message: 'connectorAdyen-storedTransactionNotFound',
+        data: { cancellation, storedTransaction },
+      })
+
+      throw new Error('Transaction not found')
+    }
+
+    if (storedTransaction.cancellation) {
+      const [
+        {
+          NotificationRequestItem: { pspReference, eventCode, reason, success },
+        },
+      ] = storedTransaction.cancellation.notificationItems
+
+      if (success === 'true') {
+        return Cancellations.approve(cancellation, {
+          cancellationId: pspReference,
+        })
+      }
+
+      return Cancellations.deny(cancellation, {
+        code: eventCode,
+        message: reason,
       })
     }
 
     const {
-      clients: { adyen },
-      // vtex: { logger },
-    } = this.context
+      pspReference,
+    } = storedTransaction.authorization.notificationItems[0].NotificationRequestItem
 
-    const { authorizationId } = cancellation
+    const settings: AppSettings = await apps.getAppSettings(APP_ID)
 
-    // get transaction
+    await adyen.cancel(
+      pspReference,
+      {
+        merchantAccount: settings.merchantAccount,
+        reference: cancellation.requestId,
+      },
+      settings
+    )
 
-    // if cancelled
-
-    Cancellations.approve(cancellation, {
-      cancellationId: '', // transaction.pspReference,
-    })
-
-    // else request cancel
-    const cancelResponse = await adyen.cancel({
-      merchantAccount,
-      originalReference: authorizationId,
-    })
-
-    if (cancelResponse.response === '[cancel-received]') {
-      // handle
+    return {
+      ...cancellation,
+      cancellationId: null,
+      code: null,
+      message: null,
     }
-
-    throw new Error('Not implemented')
   }
 
   public async refund(refund: RefundRequest): Promise<RefundResponse> {
-    if (this.isTestSuite) {
-      const refundArgs: ApproveRefundArgs = { refundId: 'abc123' }
+    const {
+      clients: { adyen, vbase, apps },
+      vtex: { logger },
+    } = this.context
 
-      return Refunds.approve(refund, refundArgs)
+    const storedTransaction = await vbase.getJSON<StoredTransaction | null>(
+      'adyen',
+      refund.paymentId,
+      true
+    )
+
+    logger.info({
+      message: 'connectorAdyen-refundRequest',
+      data: { refund, storedTransaction },
+    })
+
+    if (!storedTransaction?.authorization) {
+      logger.error({
+        message: 'connectorAdyen-storedTransactionNotFound',
+        data: { refund, storedTransaction },
+      })
+
+      throw new Error('Missing transaction data')
+    }
+
+    if (storedTransaction.refund) {
+      const [
+        {
+          NotificationRequestItem: { pspReference, eventCode, reason, success },
+        },
+      ] = storedTransaction.refund.notificationItems
+
+      if (success === 'true') {
+        return Refunds.approve(refund, {
+          refundId: pspReference,
+        })
+      }
+
+      return Refunds.deny(refund, {
+        cancellationId: pspReference,
+        code: eventCode,
+        message: reason,
+      })
     }
 
     const {
-      clients: { adyen },
-      // vtex: { logger },
-    } = this.context
+      pspReference,
+      amount: { currency },
+    } = storedTransaction.authorization?.notificationItems[0].NotificationRequestItem
 
-    if (!refund.tid) throw new Error('Not implemented')
+    const settings: AppSettings = await apps.getAppSettings(APP_ID)
 
-    const refundResponse = await adyen.refund({
-      merchantAccount,
-      modificationAmount: refund.value,
-      originalReference: refund.tid,
-    })
+    await adyen.refund(
+      pspReference,
+      {
+        merchantAccount: settings.merchantAccount,
+        amount: { value: refund.value * 100, currency },
+        reference: refund.requestId,
+      },
+      settings
+    )
 
-    if (refundResponse.response === '[capture-received]') {
-      return {
-        ...refund,
-        refundId: refundResponse.pspReference,
-        code: null,
-        message: null,
-      }
+    return {
+      ...refund,
+      refundId: null,
+      code: null,
+      message: null,
     }
-
-    throw new Error('Not implemented')
   }
 
   public async settle(
     settlement: SettlementRequest
   ): Promise<SettlementResponse> {
-    if (this.isTestSuite) {
-      const settlementArgs: ApproveSettlementArgs = { settleId: '123abc' }
-
-      return Settlements.deny(settlement, settlementArgs)
-    }
-
-    // const {
-    //   paymentId,
-    //   requestId,
-    //   value,
-    //   authorizationId,
-    //   tid,
-    //   recipients,
-    //   transactionId,
-    // } = settlement
-
     const {
-      clients: { adyen },
-      // vtex: { logger },
+      clients: { adyen, vbase, apps },
+      vtex: { logger },
     } = this.context
 
-    const captureResponse = await adyen.capture({
-      merchantAccount,
-      modificationAmount: settlement.value,
-      originalReference: settlement.authorizationId,
+    const storedTransaction = await vbase.getJSON<StoredTransaction | null>(
+      'adyen',
+      settlement.paymentId,
+      true
+    )
+
+    logger.info({
+      message: 'connectorAdyen-settleRequest',
+      data: { settlement, storedTransaction },
     })
 
-    if (captureResponse.response === '[capture-received]') {
-      return {
-        ...settlement,
-        settleId: captureResponse.pspReference,
-        code: null,
-        message: null,
-      }
+    if (!storedTransaction?.authorization) {
+      logger.error({
+        message: 'connectorAdyen-storedTransactionNotFound',
+        data: { settlement, storedTransaction },
+      })
+
+      throw new Error('Missing transaction data')
     }
 
-    throw new Error('Not implemented')
+    if (storedTransaction.capture) {
+      const [
+        {
+          NotificationRequestItem: { pspReference, eventCode, reason, success },
+        },
+      ] = storedTransaction.capture.notificationItems
+
+      if (success === 'true') {
+        return Settlements.approve(settlement, {
+          settleId: pspReference,
+        })
+      }
+
+      return Settlements.deny(settlement, {
+        code: eventCode,
+        message: reason,
+      })
+    }
+
+    const {
+      pspReference,
+      amount: { currency },
+    } = storedTransaction.authorization?.notificationItems[0].NotificationRequestItem
+
+    const settings: AppSettings = await apps.getAppSettings(APP_ID)
+
+    await adyen.capture(
+      pspReference,
+      {
+        merchantAccount: settings.merchantAccount,
+        amount: {
+          value: settlement.value * 100,
+          currency,
+        },
+        reference: settlement.paymentId,
+      },
+      settings
+    )
+
+    return {
+      ...settlement,
+      code: null,
+      message: null,
+      settleId: null,
+    }
   }
 
   public inbound: undefined

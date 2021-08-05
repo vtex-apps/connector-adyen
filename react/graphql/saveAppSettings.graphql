@@ -1,6 +1,6 @@
 mutation SaveAppSettings($version: String, $settings: String) {
   saveAppSettings(
-    app: "vtexus.connector-adyen"
+    app: "vtex.connector-adyen"
     version: $version
     settings: $settings
   ) @context(provider: "vtex.apps-graphql") {

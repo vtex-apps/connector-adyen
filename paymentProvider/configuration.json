@@ -1,46 +1,43 @@
 {
   "name": "Adyen",
   "implementsSplit": true,
+  "usesAutoSettleOptions": true,
   "paymentMethods": [
     {
       "name": "Visa",
-      "allowsSplit": "onCapture"
+      "allowsSplit": "onAuthorize"
     },
     {
       "name": "American Express",
-      "allowsSplit": "onCapture"
+      "allowsSplit": "onAuthorize"
     },
     {
       "name": "Discover",
-      "allowsSplit": "onCapture"
+      "allowsSplit": "onAuthorize"
     },
     {
       "name": "Mastercard",
-      "allowsSplit": "onCapture"
+      "allowsSplit": "onAuthorize"
     },
     {
       "name": "JCB",
-      "allowsSplit": "onCapture"
+      "allowsSplit": "onAuthorize"
     },
     {
       "name": "Diners",
-      "allowsSplit": "onCapture"
+      "allowsSplit": "onAuthorize"
     },
     {
       "name": "Visa Electron",
-      "allowsSplit": "onCapture"
+      "allowsSplit": "onAuthorize"
     },
     {
       "name": "Maestro",
-      "allowsSplit": "onCapture"
+      "allowsSplit": "onAuthorize"
     },
     {
       "name": "Mastercard Debit",
-      "allowsSplit": "onCapture"
-    },
-    {
-      "name": "BankInvoice",
-      "allowsSplit": "onCapture"
+      "allowsSplit": "onAuthorize"
     }
   ]
 }
