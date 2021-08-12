@@ -71,19 +71,19 @@ export default class Adyen extends ExternalClient {
     }
   }
 
-  public async refund(
-    pspReference: string,
-    data: AdyenRefundRequest,
-    appSettings: AppSettings
-  ): Promise<AdyenRefundResponse | null> {
+  public async refund({
+    pspReference,
+    data,
+    settings,
+  }: AdyenRefundRequest): Promise<AdyenRefundResponse | null> {
     try {
       return await this.http.post(
-        `${this.getEndpoint(appSettings)}/v67/payments/${pspReference}/refunds
+        `${this.getEndpoint(settings)}/v67/payments/${pspReference}/refunds
     `,
         data,
         {
           headers: {
-            'X-API-Key': appSettings.apiKey,
+            'X-API-Key': settings.apiKey,
             'X-Vtex-Use-Https': 'true',
             'Content-Type': 'application/json',
           },

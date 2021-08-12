@@ -3,6 +3,7 @@
 import { json } from 'co-body'
 import {
   ApprovedAuthorization,
+  AuthorizationRequest,
   FailedAuthorization,
 } from '@vtex/payment-provider'
 
@@ -43,7 +44,6 @@ const handleAdyenWebhook = async (ctx: Context) => {
   const eventData: AdyenHookNotification = await json(req)
 
   const {
-    // live,
     notificationItems: [
       {
         NotificationRequestItem: {
@@ -57,19 +57,29 @@ const handleAdyenWebhook = async (ctx: Context) => {
     ],
   } = eventData
 
+  console.log('webhook ==>', {
+    merchantReference,
+    eventCode,
+    pspReference,
+    success,
+    reason,
+  })
   logger.info({
     message: 'Webhook-received',
-    data: { merchantReference, eventCode, pspReference, success },
+    data: { merchantReference, eventCode, pspReference, success, reason },
   })
 
-  let transaction: StoredTransaction | null = null
+  let authRequest: AuthorizationRequest | null = null
+  const [paymentId] = merchantReference.split('-')
 
   try {
-    transaction = await vbase.getJSON<StoredTransaction | null>(
-      'adyen',
-      merchantReference,
+    authRequest = await vbase.getJSON<AuthorizationRequest | null>(
+      'adyenRequest',
+      paymentId,
       true
     )
+
+    console.log('webhook savedAuthRequest ==>', authRequest)
   } catch (error) {
     logger.error({
       message: 'Webhook-transactionFetchError',
@@ -78,9 +88,9 @@ const handleAdyenWebhook = async (ctx: Context) => {
     })
   }
 
-  if (!transaction) {
-    logger.warn({
-      message: 'Webhook-transactionNotFound',
+  if (!authRequest) {
+    logger.error({
+      message: 'Webhook-originalAuthorizationNotFound',
       data: { paymentId: merchantReference, pspReference, eventCode, success },
     })
 
@@ -90,13 +100,11 @@ const handleAdyenWebhook = async (ctx: Context) => {
   }
 
   if (eventCode === 'AUTHORISATION') {
-    transaction.authorization = eventData
-
     try {
-      await vbase.saveJSON<StoredTransaction>(
-        'adyen',
+      await vbase.saveJSON<AdyenHookNotification>(
+        'adyenAuth',
         merchantReference,
-        transaction
+        eventData
       )
     } catch (error) {
       logger.error({
@@ -106,10 +114,8 @@ const handleAdyenWebhook = async (ctx: Context) => {
       })
     }
 
-    const { authorizationRequest } = transaction
-
     const authResponse = {
-      ...authorizationRequest,
+      ...authRequest,
       authorizationId: pspReference,
       tid: pspReference,
       nsu: pspReference,
@@ -121,7 +127,7 @@ const handleAdyenWebhook = async (ctx: Context) => {
 
     try {
       provider.callback(
-        authorizationRequest.callbackUrl,
+        authRequest.callbackUrl,
         { vtexAppKey, vtexAppToken },
         authResponse
       )
@@ -137,31 +143,26 @@ const handleAdyenWebhook = async (ctx: Context) => {
   let vbaseSavePromise: Promise<unknown> | null = null
 
   if (eventCode === 'CAPTURE') {
-    transaction.capture = eventData
-    vbaseSavePromise = vbase.saveJSON<StoredTransaction>(
-      'adyen',
+    vbaseSavePromise = vbase.saveJSON<AdyenHookNotification>(
+      'adyenCapture',
       merchantReference,
-      transaction
+      eventData
     )
   }
 
   if (eventCode === 'REFUND') {
-    transaction.refund = eventData
-
-    vbaseSavePromise = vbase.saveJSON<StoredTransaction>(
-      'adyen',
+    vbaseSavePromise = vbase.saveJSON<AdyenHookNotification>(
+      'adyenRefund',
       merchantReference,
-      transaction
+      eventData
     )
   }
 
   if (eventCode === 'CANCELLATION') {
-    transaction.cancellation = eventData
-
-    vbaseSavePromise = vbase.saveJSON<StoredTransaction>(
-      'adyen',
+    vbaseSavePromise = vbase.saveJSON<AdyenHookNotification>(
+      'adyenCancellation',
       merchantReference,
-      transaction
+      eventData
     )
   }
 

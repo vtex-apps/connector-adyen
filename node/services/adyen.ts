@@ -3,6 +3,7 @@ import getCountryISO2 from 'country-iso-3-to-2'
 import {
   AuthorizationRequest,
   CardAuthorization,
+  RefundRequest,
   TokenizedCard,
 } from '@vtex/payment-provider'
 import { ServiceContext } from '@vtex/api'
@@ -13,7 +14,7 @@ import { Clients } from '../clients'
 const handleSplit = async (
   ctx: ServiceContext<Clients>,
   settings: AppSettings,
-  authorization: AuthorizationRequest
+  authorization: AuthorizationRequest | RefundRequest
 ) => {
   if (!settings.useAdyenPlatforms || !authorization.recipients) return undefined
 
@@ -139,6 +140,37 @@ export const adyenService = {
       data,
       settings,
       secureProxyUrl,
+    }
+  },
+  buildRefundRequest: async ({
+    ctx,
+    refund,
+    authorization,
+    settings,
+  }: {
+    ctx: ServiceContext<Clients>
+    refund: RefundRequest
+    authorization: AdyenHookNotification
+    settings: AppSettings
+  }): Promise<AdyenRefundRequest> => {
+    const {
+      pspReference,
+      amount: { currency },
+    } = authorization.notificationItems[0].NotificationRequestItem
+
+    const splits = await handleSplit(ctx, settings, refund)
+
+    const data = {
+      merchantAccount: settings.merchantAccount,
+      amount: { value: refund.value * 100, currency },
+      reference: `${refund.paymentId}-${refund.value}`,
+      splits,
+    }
+
+    return {
+      pspReference, // refund.tid
+      data,
+      settings,
     }
   },
 }

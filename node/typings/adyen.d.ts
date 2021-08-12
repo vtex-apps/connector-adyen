@@ -1,12 +1,3 @@
-interface StoredTransaction {
-  authorizationRequest: import('@vtex/payment-provider').AuthorizationRequest
-  authorization?: AdyenHookNotification
-  capture?: AdyenHookNotification
-  cancellation?: AdyenHookNotification
-  refund?: AdyenHookNotification
-}
-
-AuthorizationRequest
 interface AdyenHookNotification {
   live: 'true' | 'false'
   notificationItems: [
@@ -156,9 +147,16 @@ interface AdyenPaymentRequest {
 }
 
 interface AdyenRefundRequest {
+  pspReference: string
+  data: AdyenRefund
+  settings: AppSettings
+}
+
+interface AdyenRefund {
   amount: Amount
   merchantAccount: string
   reference?: string
+  splits?: Split[]
 }
 
 interface AdyenSplit {

@@ -35,24 +35,27 @@ export default class Adyen extends PaymentProvider<Clients> {
       vtex: { logger },
     } = this.context
 
+    console.log('authorization ==>', authorization)
     const settings: AppSettings = await apps.getAppSettings(APP_ID)
-    const transaction = await vbase.getJSON<StoredTransaction | null>(
-      'adyen',
+    const existingAuthorization = await vbase.getJSON<AdyenHookNotification | null>(
+      'adyenAuth',
       authorization.paymentId,
       true
     )
 
     logger.info({
       message: 'connectorAdyen-paymentRequest',
-      data: { authorization, transaction },
+      data: { authorization, existingAuthorization },
     })
 
-    if (transaction?.authorization) {
+    console.log('existingAuthorization ==>', existingAuthorization)
+
+    if (existingAuthorization) {
       const [
         {
           NotificationRequestItem: { pspReference, reason, success },
         },
-      ] = transaction.authorization.notificationItems
+      ] = existingAuthorization.notificationItems
 
       if (success === 'true') {
         return Authorizations.approveCard(authorization as CardAuthorization, {
@@ -74,10 +77,10 @@ export default class Adyen extends PaymentProvider<Clients> {
       })
     }
 
-    await vbase.saveJSON<StoredTransaction | null>(
-      'adyen',
+    await vbase.saveJSON<AuthorizationRequest | null>(
+      'adyenRequest',
       authorization.paymentId,
-      { authorizationRequest: authorization }
+      authorization
     )
 
     const adyenPaymentRequest = await adyenService.buildPaymentRequest({
@@ -126,32 +129,25 @@ export default class Adyen extends PaymentProvider<Clients> {
       vtex: { logger },
     } = this.context
 
-    const storedTransaction = await vbase.getJSON<StoredTransaction | null>(
-      'adyen',
+    console.log('cancellation ==>', cancellation)
+    const existingCancellation = await vbase.getJSON<AdyenHookNotification | null>(
+      'adyenCancellation',
       cancellation.paymentId,
       true
     )
 
+    console.log('existingCancellation ==>', existingCancellation)
     logger.info({
       message: 'connectorAdyen-cancelRequest',
-      data: { cancellation, storedTransaction },
+      data: { cancellation, existingCancellation },
     })
 
-    if (!storedTransaction?.authorization) {
-      logger.error({
-        message: 'connectorAdyen-storedTransactionNotFound',
-        data: { cancellation, storedTransaction },
-      })
-
-      throw new Error('Transaction not found')
-    }
-
-    if (storedTransaction.cancellation) {
+    if (existingCancellation) {
       const [
         {
           NotificationRequestItem: { pspReference, eventCode, reason, success },
         },
-      ] = storedTransaction.cancellation.notificationItems
+      ] = existingCancellation.notificationItems
 
       if (success === 'true') {
         return Cancellations.approve(cancellation, {
@@ -165,17 +161,22 @@ export default class Adyen extends PaymentProvider<Clients> {
       })
     }
 
-    const {
-      pspReference,
-    } = storedTransaction.authorization.notificationItems[0].NotificationRequestItem
+    if (!cancellation.authorizationId) {
+      logger.error({
+        message: 'connectorAdyen-authorizationIdMissing',
+        data: { cancellation },
+      })
+
+      throw new Error('Transaction not found')
+    }
 
     const settings: AppSettings = await apps.getAppSettings(APP_ID)
 
     await adyen.cancel(
-      pspReference,
+      cancellation.authorizationId,
       {
         merchantAccount: settings.merchantAccount,
-        reference: cancellation.requestId,
+        reference: cancellation.paymentId,
       },
       settings
     )
@@ -194,32 +195,26 @@ export default class Adyen extends PaymentProvider<Clients> {
       vtex: { logger },
     } = this.context
 
-    const storedTransaction = await vbase.getJSON<StoredTransaction | null>(
-      'adyen',
-      refund.paymentId,
+    console.log('refund ==>', refund)
+    const existingRefund = await vbase.getJSON<AdyenHookNotification | null>(
+      'adyenRefund',
+      `${refund.paymentId}-${refund.value}`,
       true
     )
 
+    console.log('existingRefund ==>', existingRefund)
+
     logger.info({
       message: 'connectorAdyen-refundRequest',
-      data: { refund, storedTransaction },
+      data: { refund, existingRefund },
     })
 
-    if (!storedTransaction?.authorization) {
-      logger.error({
-        message: 'connectorAdyen-storedTransactionNotFound',
-        data: { refund, storedTransaction },
-      })
-
-      throw new Error('Missing transaction data')
-    }
-
-    if (storedTransaction.refund) {
+    if (existingRefund) {
       const [
         {
           NotificationRequestItem: { pspReference, eventCode, reason, success },
         },
-      ] = storedTransaction.refund.notificationItems
+      ] = existingRefund.notificationItems
 
       if (success === 'true') {
         return Refunds.approve(refund, {
@@ -234,22 +229,30 @@ export default class Adyen extends PaymentProvider<Clients> {
       })
     }
 
-    const {
-      pspReference,
-      amount: { currency },
-    } = storedTransaction.authorization?.notificationItems[0].NotificationRequestItem
+    const adyenAuth = await vbase.getJSON<AdyenHookNotification | null>(
+      'adyenAuth',
+      refund.paymentId,
+      true
+    )
+
+    if (!adyenAuth) {
+      logger.error({
+        message: 'connectorAdyen-adyenAuthNotFound',
+        data: { refund, adyenAuth },
+      })
+
+      throw new Error('Missing transaction data')
+    }
 
     const settings: AppSettings = await apps.getAppSettings(APP_ID)
+    const refundRequest = await adyenService.buildRefundRequest({
+      ctx: this.context,
+      refund,
+      authorization: adyenAuth,
+      settings,
+    })
 
-    await adyen.refund(
-      pspReference,
-      {
-        merchantAccount: settings.merchantAccount,
-        amount: { value: refund.value * 100, currency },
-        reference: refund.requestId,
-      },
-      settings
-    )
+    await adyen.refund(refundRequest)
 
     return {
       ...refund,
@@ -267,32 +270,27 @@ export default class Adyen extends PaymentProvider<Clients> {
       vtex: { logger },
     } = this.context
 
-    const storedTransaction = await vbase.getJSON<StoredTransaction | null>(
-      'adyen',
-      settlement.paymentId,
+    console.log('settlement ==>', settlement)
+
+    const existingSettlement = await vbase.getJSON<AdyenHookNotification | null>(
+      'adyenCapture',
+      `${settlement.paymentId}-${settlement.value}`,
       true
     )
 
+    console.log('existingSettlement ==>', existingSettlement)
+
     logger.info({
       message: 'connectorAdyen-settleRequest',
-      data: { settlement, storedTransaction },
+      data: { settlement, existingSettlement },
     })
 
-    if (!storedTransaction?.authorization) {
-      logger.error({
-        message: 'connectorAdyen-storedTransactionNotFound',
-        data: { settlement, storedTransaction },
-      })
-
-      throw new Error('Missing transaction data')
-    }
-
-    if (storedTransaction.capture) {
+    if (existingSettlement) {
       const [
         {
           NotificationRequestItem: { pspReference, eventCode, reason, success },
         },
-      ] = storedTransaction.capture.notificationItems
+      ] = existingSettlement.notificationItems
 
       if (success === 'true') {
         return Settlements.approve(settlement, {
@@ -306,10 +304,25 @@ export default class Adyen extends PaymentProvider<Clients> {
       })
     }
 
+    const adyenAuth = await vbase.getJSON<AdyenHookNotification | null>(
+      'adyenAuth',
+      settlement.paymentId,
+      true
+    )
+
+    if (!adyenAuth) {
+      logger.error({
+        message: 'connectorAdyen-adyenAuthNotFound',
+        data: { settlement, adyenAuth },
+      })
+
+      throw new Error('Missing transaction data')
+    }
+
     const {
       pspReference,
       amount: { currency },
-    } = storedTransaction.authorization?.notificationItems[0].NotificationRequestItem
+    } = adyenAuth.notificationItems[0].NotificationRequestItem
 
     const settings: AppSettings = await apps.getAppSettings(APP_ID)
 
@@ -321,7 +334,7 @@ export default class Adyen extends PaymentProvider<Clients> {
           value: settlement.value * 100,
           currency,
         },
-        reference: settlement.paymentId,
+        reference: `${settlement.paymentId}-${settlement.value}`,
       },
       settings
     )
