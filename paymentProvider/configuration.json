@@ -2,6 +2,7 @@
   "name": "Adyen Payments",
   "implementsSplit": true,
   "usesAutoSettleOptions": true,
+  "acceptSplitPartialRefund": true,
   "paymentMethods": [
     {
       "name": "Visa",

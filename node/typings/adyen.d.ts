@@ -21,6 +21,10 @@ interface AdyenHookNotification {
   ]
 }
 
+interface TransactionEvent {
+  notification: AdyenHookNotification | null
+}
+
 type EventCode =
   | 'CAPTURE'
   | 'CAPTURE_FAILED'

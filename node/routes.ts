@@ -143,18 +143,18 @@ const handleAdyenWebhook = async (ctx: Context) => {
   let vbaseSavePromise: Promise<unknown> | null = null
 
   if (eventCode === 'CAPTURE') {
-    vbaseSavePromise = vbase.saveJSON<AdyenHookNotification>(
+    vbaseSavePromise = vbase.saveJSON<TransactionEvent>(
       'adyenCapture',
       merchantReference,
-      eventData
+      { notification: eventData }
     )
   }
 
   if (eventCode === 'REFUND') {
-    vbaseSavePromise = vbase.saveJSON<AdyenHookNotification>(
+    vbaseSavePromise = vbase.saveJSON<TransactionEvent>(
       'adyenRefund',
       merchantReference,
-      eventData
+      { notification: eventData }
     )
   }
 

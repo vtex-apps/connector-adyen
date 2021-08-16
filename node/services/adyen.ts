@@ -11,6 +11,8 @@ import { ServiceContext } from '@vtex/api'
 import { priceInCents } from '../utils'
 import { Clients } from '../clients'
 
+const APP_ID = process.env.VTEX_APP_ID as string
+
 const handleSplit = async (
   ctx: ServiceContext<Clients>,
   settings: AppSettings,
@@ -146,18 +148,17 @@ export const adyenService = {
     ctx,
     refund,
     authorization,
-    settings,
   }: {
     ctx: ServiceContext<Clients>
     refund: RefundRequest
     authorization: AdyenHookNotification
-    settings: AppSettings
   }): Promise<AdyenRefundRequest> => {
     const {
       pspReference,
       amount: { currency },
     } = authorization.notificationItems[0].NotificationRequestItem
 
+    const settings: AppSettings = await ctx.clients.apps.getAppSettings(APP_ID)
     const splits = await handleSplit(ctx, settings, refund)
 
     const data = {

@@ -130,36 +130,62 @@ export default class Adyen extends PaymentProvider<Clients> {
     } = this.context
 
     console.log('cancellation ==>', cancellation)
-    const existingCancellation = await vbase.getJSON<AdyenHookNotification | null>(
+
+    const existingCancellation = await vbase.getJSON<TransactionEvent | null>(
       'adyenCancellation',
       cancellation.paymentId,
       true
     )
 
     console.log('existingCancellation ==>', existingCancellation)
+
     logger.info({
       message: 'connectorAdyen-cancelRequest',
       data: { cancellation, existingCancellation },
     })
 
     if (existingCancellation) {
-      const [
-        {
-          NotificationRequestItem: { pspReference, eventCode, reason, success },
-        },
-      ] = existingCancellation.notificationItems
+      if (existingCancellation.notification) {
+        const [
+          {
+            NotificationRequestItem: {
+              pspReference,
+              eventCode,
+              reason,
+              success,
+            },
+          },
+        ] = existingCancellation.notification.notificationItems
 
-      if (success === 'true') {
-        return Cancellations.approve(cancellation, {
-          cancellationId: pspReference,
+        if (success === 'true') {
+          return Cancellations.approve(cancellation, {
+            cancellationId: pspReference,
+          })
+        }
+
+        return Cancellations.deny(cancellation, {
+          code: eventCode,
+          message: reason,
         })
       }
 
-      return Cancellations.deny(cancellation, {
-        code: eventCode,
-        message: reason,
-      })
+      console.log('existingCancellation ==>  empty response')
+
+      return {
+        ...cancellation,
+        cancellationId: null,
+        code: null,
+        message: null,
+      }
     }
+
+    vbase.saveJSON<TransactionEvent>(
+      'adyenCancellation',
+      cancellation.paymentId,
+      {
+        notification: null,
+      }
+    )
 
     if (!cancellation.authorizationId) {
       logger.error({
@@ -191,12 +217,13 @@ export default class Adyen extends PaymentProvider<Clients> {
 
   public async refund(refund: RefundRequest): Promise<RefundResponse> {
     const {
-      clients: { adyen, vbase, apps },
+      clients: { adyen, vbase },
       vtex: { logger },
     } = this.context
 
     console.log('refund ==>', refund)
-    const existingRefund = await vbase.getJSON<AdyenHookNotification | null>(
+
+    const existingRefund = await vbase.getJSON<TransactionEvent | null>(
       'adyenRefund',
       `${refund.paymentId}-${refund.value}`,
       true
@@ -210,24 +237,46 @@ export default class Adyen extends PaymentProvider<Clients> {
     })
 
     if (existingRefund) {
-      const [
-        {
-          NotificationRequestItem: { pspReference, eventCode, reason, success },
-        },
-      ] = existingRefund.notificationItems
+      if (existingRefund.notification) {
+        const [
+          {
+            NotificationRequestItem: {
+              pspReference,
+              eventCode,
+              reason,
+              success,
+            },
+          },
+        ] = existingRefund.notification.notificationItems
 
-      if (success === 'true') {
-        return Refunds.approve(refund, {
-          refundId: pspReference,
+        if (success === 'true') {
+          return Refunds.approve(refund, {
+            refundId: pspReference,
+          })
+        }
+
+        return Refunds.deny(refund, {
+          cancellationId: pspReference,
+          code: eventCode,
+          message: reason,
         })
       }
 
-      return Refunds.deny(refund, {
-        cancellationId: pspReference,
-        code: eventCode,
-        message: reason,
-      })
+      console.log('existingRefund ==>  empty response')
+
+      return {
+        ...refund,
+        refundId: null,
+        code: null,
+        message: null,
+      }
     }
+
+    vbase.saveJSON<TransactionEvent>(
+      'adyenRefund',
+      `${refund.paymentId}-${refund.value}`,
+      { notification: null }
+    )
 
     const adyenAuth = await vbase.getJSON<AdyenHookNotification | null>(
       'adyenAuth',
@@ -244,13 +293,13 @@ export default class Adyen extends PaymentProvider<Clients> {
       throw new Error('Missing transaction data')
     }
 
-    const settings: AppSettings = await apps.getAppSettings(APP_ID)
     const refundRequest = await adyenService.buildRefundRequest({
       ctx: this.context,
       refund,
       authorization: adyenAuth,
-      settings,
     })
+
+    console.log('refund ==> adyen request')
 
     await adyen.refund(refundRequest)
 
@@ -272,7 +321,7 @@ export default class Adyen extends PaymentProvider<Clients> {
 
     console.log('settlement ==>', settlement)
 
-    const existingSettlement = await vbase.getJSON<AdyenHookNotification | null>(
+    const existingSettlement = await vbase.getJSON<TransactionEvent | null>(
       'adyenCapture',
       `${settlement.paymentId}-${settlement.value}`,
       true
@@ -286,23 +335,45 @@ export default class Adyen extends PaymentProvider<Clients> {
     })
 
     if (existingSettlement) {
-      const [
-        {
-          NotificationRequestItem: { pspReference, eventCode, reason, success },
-        },
-      ] = existingSettlement.notificationItems
+      if (existingSettlement.notification) {
+        const [
+          {
+            NotificationRequestItem: {
+              pspReference,
+              eventCode,
+              reason,
+              success,
+            },
+          },
+        ] = existingSettlement.notification.notificationItems
 
-      if (success === 'true') {
-        return Settlements.approve(settlement, {
-          settleId: pspReference,
+        if (success === 'true') {
+          return Settlements.approve(settlement, {
+            settleId: pspReference,
+          })
+        }
+
+        return Settlements.deny(settlement, {
+          code: eventCode,
+          message: reason,
         })
       }
 
-      return Settlements.deny(settlement, {
-        code: eventCode,
-        message: reason,
-      })
+      console.log('existingSettlement ==> empty response')
+
+      return {
+        ...settlement,
+        code: null,
+        message: null,
+        settleId: null,
+      }
     }
+
+    vbase.saveJSON<TransactionEvent>(
+      'adyenCapture',
+      `${settlement.paymentId}-${settlement.value}`,
+      { notification: null }
+    )
 
     const adyenAuth = await vbase.getJSON<AdyenHookNotification | null>(
       'adyenAuth',
@@ -338,6 +409,8 @@ export default class Adyen extends PaymentProvider<Clients> {
       },
       settings
     )
+
+    console.log('capture ==> adyen request')
 
     return {
       ...settlement,
