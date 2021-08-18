@@ -91,6 +91,8 @@ export default class Adyen extends PaymentProvider<Clients> {
 
     const adyenResponse = await adyen.payment(adyenPaymentRequest)
 
+    console.log('adyenResponse ==>', adyenResponse)
+
     if (!adyenResponse) {
       return Authorizations.deny(authorization as CardAuthorization, {
         message: 'No Adyen Payment response',

@@ -40,7 +40,7 @@ const handleSplit = async (
   const splits = recipients.reduce((prev, cur) => {
     const detail = {
       amount: {
-        value: cur.amount * 100,
+        value: priceInCents(cur.amount),
       },
       type: 'Default',
       reference: cur.name,
@@ -163,7 +163,7 @@ export const adyenService = {
 
     const data = {
       merchantAccount: settings.merchantAccount,
-      amount: { value: refund.value * 100, currency },
+      amount: { value: priceInCents(refund.value), currency },
       reference: `${refund.paymentId}-${refund.value}`,
       splits,
     }
