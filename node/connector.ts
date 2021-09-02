@@ -35,7 +35,6 @@ export default class Adyen extends PaymentProvider<Clients> {
       vtex: { logger },
     } = this.context
 
-    console.log('authorization ==>', authorization)
     const settings: AppSettings = await apps.getAppSettings(APP_ID)
     const existingAuthorization = await vbase.getJSON<AdyenHookNotification | null>(
       'adyenAuth',
@@ -47,8 +46,6 @@ export default class Adyen extends PaymentProvider<Clients> {
       message: 'connectorAdyen-paymentRequest',
       data: { authorization, existingAuthorization },
     })
-
-    console.log('existingAuthorization ==>', existingAuthorization)
 
     if (existingAuthorization) {
       const [
@@ -91,8 +88,6 @@ export default class Adyen extends PaymentProvider<Clients> {
 
     const adyenResponse = await adyen.payment(adyenPaymentRequest)
 
-    console.log('adyenResponse ==>', adyenResponse)
-
     if (!adyenResponse) {
       return Authorizations.deny(authorization as CardAuthorization, {
         message: 'No Adyen Payment response',
@@ -131,15 +126,11 @@ export default class Adyen extends PaymentProvider<Clients> {
       vtex: { logger },
     } = this.context
 
-    console.log('cancellation ==>', cancellation)
-
     const existingCancellation = await vbase.getJSON<TransactionEvent | null>(
       'adyenCancellation',
       cancellation.paymentId,
       true
     )
-
-    console.log('existingCancellation ==>', existingCancellation)
 
     logger.info({
       message: 'connectorAdyen-cancelRequest',
@@ -170,8 +161,6 @@ export default class Adyen extends PaymentProvider<Clients> {
           message: reason,
         })
       }
-
-      console.log('existingCancellation ==>  empty response')
 
       return {
         ...cancellation,
@@ -223,15 +212,11 @@ export default class Adyen extends PaymentProvider<Clients> {
       vtex: { logger },
     } = this.context
 
-    console.log('refund ==>', refund)
-
     const existingRefund = await vbase.getJSON<TransactionEvent | null>(
       'adyenRefund',
       `${refund.paymentId}-${refund.value}`,
       true
     )
-
-    console.log('existingRefund ==>', existingRefund)
 
     logger.info({
       message: 'connectorAdyen-refundRequest',
@@ -263,8 +248,6 @@ export default class Adyen extends PaymentProvider<Clients> {
           message: reason,
         })
       }
-
-      console.log('existingRefund ==>  empty response')
 
       return {
         ...refund,
@@ -301,8 +284,6 @@ export default class Adyen extends PaymentProvider<Clients> {
       authorization: adyenAuth,
     })
 
-    console.log('refund ==> adyen request')
-
     await adyen.refund(refundRequest)
 
     return {
@@ -317,19 +298,15 @@ export default class Adyen extends PaymentProvider<Clients> {
     settlement: SettlementRequest
   ): Promise<SettlementResponse> {
     const {
-      clients: { adyen, vbase, apps },
+      clients: { adyen, vbase },
       vtex: { logger },
     } = this.context
-
-    console.log('settlement ==>', settlement)
 
     const existingSettlement = await vbase.getJSON<TransactionEvent | null>(
       'adyenCapture',
       `${settlement.paymentId}-${settlement.value}`,
       true
     )
-
-    console.log('existingSettlement ==>', existingSettlement)
 
     logger.info({
       message: 'connectorAdyen-settleRequest',
@@ -361,8 +338,6 @@ export default class Adyen extends PaymentProvider<Clients> {
         })
       }
 
-      console.log('existingSettlement ==> empty response')
-
       return {
         ...settlement,
         code: null,
@@ -392,27 +367,13 @@ export default class Adyen extends PaymentProvider<Clients> {
       throw new Error('Missing transaction data')
     }
 
-    const {
-      pspReference,
-      amount: { currency },
-    } = adyenAuth.notificationItems[0].NotificationRequestItem
+    const adyenCaptureRequest = await adyenService.buildCaptureRequest({
+      ctx: this.context,
+      settlement,
+      authorization: adyenAuth,
+    })
 
-    const settings: AppSettings = await apps.getAppSettings(APP_ID)
-
-    await adyen.capture(
-      pspReference,
-      {
-        merchantAccount: settings.merchantAccount,
-        amount: {
-          value: settlement.value * 100,
-          currency,
-        },
-        reference: `${settlement.paymentId}-${settlement.value}`,
-      },
-      settings
-    )
-
-    console.log('capture ==> adyen request')
+    await adyen.capture(adyenCaptureRequest)
 
     return {
       ...settlement,

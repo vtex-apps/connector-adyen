@@ -4,6 +4,7 @@ import {
   AuthorizationRequest,
   CardAuthorization,
   RefundRequest,
+  SettlementRequest,
   TokenizedCard,
 } from '@vtex/payment-provider'
 import { ServiceContext } from '@vtex/api'
@@ -16,7 +17,7 @@ const APP_ID = process.env.VTEX_APP_ID as string
 const handleSplit = async (
   ctx: ServiceContext<Clients>,
   settings: AppSettings,
-  authorization: AuthorizationRequest | RefundRequest
+  authorization: AuthorizationRequest | RefundRequest | SettlementRequest
 ) => {
   if (!settings.useAdyenPlatforms || !authorization.recipients) return undefined
 
@@ -165,6 +166,36 @@ export const adyenService = {
       merchantAccount: settings.merchantAccount,
       amount: { value: priceInCents(refund.value), currency },
       reference: `${refund.paymentId}-${refund.value}`,
+      splits,
+    }
+
+    return {
+      pspReference, // refund.tid
+      data,
+      settings,
+    }
+  },
+  buildCaptureRequest: async ({
+    ctx,
+    settlement,
+    authorization,
+  }: {
+    ctx: ServiceContext<Clients>
+    settlement: SettlementRequest
+    authorization: AdyenHookNotification
+  }): Promise<AdyenRefundRequest> => {
+    const {
+      pspReference,
+      amount: { currency },
+    } = authorization.notificationItems[0].NotificationRequestItem
+
+    const settings: AppSettings = await ctx.clients.apps.getAppSettings(APP_ID)
+    const splits = await handleSplit(ctx, settings, settlement)
+
+    const data = {
+      merchantAccount: settings.merchantAccount,
+      amount: { value: priceInCents(settlement.value), currency },
+      reference: `${settlement.paymentId}-${settlement.value}`,
       splits,
     }
 

@@ -1,7 +1,7 @@
 {
   "name": "connector-adyen",
   "vendor": "vtex",
-  "version": "0.0.1-beta.12",
+  "version": "0.0.1-beta.13",
   "title": "Adyen",
   "description": "Payment Provider integration for Adyen",
   "dependencies": {

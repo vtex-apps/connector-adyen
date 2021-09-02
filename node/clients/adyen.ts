@@ -12,19 +12,19 @@ export default class Adyen extends ExternalClient {
     return this.context.production ? settings.productionAPI : TEST_URL
   }
 
-  public async capture(
-    pspReference: string,
-    data: AdyenCaptureRequest,
-    appSettings: AppSettings
-  ): Promise<AdyenCaptureResponse | null> {
+  public async capture({
+    pspReference,
+    data,
+    settings,
+  }: any): Promise<AdyenCaptureResponse | null> {
     try {
       return await this.http.post(
-        `${this.getEndpoint(appSettings)}/v67/payments/${pspReference}/captures
+        `${this.getEndpoint(settings)}/v67/payments/${pspReference}/captures
         `,
         data,
         {
           headers: {
-            'X-API-Key': appSettings.apiKey,
+            'X-API-Key': settings.apiKey,
             'X-Vtex-Use-Https': 'true',
             'Content-Type': 'application/json',
           },
