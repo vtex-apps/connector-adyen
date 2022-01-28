@@ -19,10 +19,21 @@ This app integrates Adyen with VTEX checkout.
 Before you can configure the VTEX Adyen connector, you will need to do the following setup in your Adyen merchant account:
 
 1. Generate Web Service API credentials.
-2. In Merchant Settings, update the Capture Delay option to `manual`. This allows VTEX to handle payment capture timing.
-3. Create a Standard Notification webhook
-   - Make sure the webhook is marked as active
-   - Create a username and password for the webhook events
+   - Under the Developers tab, select `API credentials`
+   - Select `Webservice`
+   - Keep `Username` and `Password` somewhere safe
+   - Generate a new API Key and store it somewhere safe. This can be regenerated if lost
+2. (Do Only Once) Send an email to Adyen support (suporte@adyen.com), requesting the permissions listed in the model below:
+   - Subject: Setting VTEX web-service user permissions for {accountName}
+   - Email Body: Adyen Support, I send this email to ask you to grant the necessary permissions to the user username@Company.companyname so that it can be used on the VTEX platform. Thank you in advance!
+3. In Merchant Settings, update the Capture Delay option to `manual`. This allows VTEX to handle payment capture timing.
+4. Create a Standard Notification Webhook
+   - Use `https://{accountName}.myvtex.com/_v/api/connector-adyen/v0/hook` for the URL
+      - Example: `https://mysampleshop.myvtex.com/_v/api/connector-adyen/v0/hook`
+   - Make sure `Service Version` is `1`
+   - Make sure the webhook is marked as `active`
+   - Make sure `Method` is set to `JSON`
+   - Create a `username` and `password` for the webhook events
 
 ### Installing the App
 
