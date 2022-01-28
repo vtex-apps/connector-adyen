@@ -36,11 +36,12 @@ export default class Adyen extends PaymentProvider<Clients> {
     } = this.context
 
     const settings: AppSettings = await apps.getAppSettings(APP_ID)
-    const existingAuthorization = await vbase.getJSON<AdyenHookNotification | null>(
-      'adyenAuth',
-      authorization.paymentId,
-      true
-    )
+    const existingAuthorization =
+      await vbase.getJSON<AdyenHookNotification | null>(
+        'adyenAuth',
+        authorization.paymentId,
+        true
+      )
 
     logger.info({
       message: 'connectorAdyen-paymentRequest',

@@ -2,12 +2,15 @@ import {
   isBankInvoiceAuthorization,
   isCardAuthorization,
   isTokenizedCard,
-  AuthorizationRequest,
-  AuthorizationResponse,
   Authorizations,
 } from '@vtex/payment-provider'
 
 import { randomString, randomUrl } from './utils'
+
+import type {
+  AuthorizationRequest,
+  AuthorizationResponse,
+} from '@vtex/payment-provider'
 
 type Flow =
   | 'Authorize'
@@ -25,14 +28,14 @@ export const flows: Record<
     callback: (response: AuthorizationResponse) => void
   ) => AuthorizationResponse
 > = {
-  Authorize: request =>
+  Authorize: (request) =>
     Authorizations.approve(request, {
       authorizationId: randomString(),
       nsu: randomString(),
       tid: randomString(),
     }),
 
-  Denied: request => Authorizations.deny(request, { tid: randomString() }),
+  Denied: (request) => Authorizations.deny(request, { tid: randomString() }),
 
   Cancel: (request, callback) => flows.Authorize(request, callback),
 
