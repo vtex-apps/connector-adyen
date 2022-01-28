@@ -19,17 +19,11 @@ const handleAdyenWebhook = async (ctx: Context) => {
 
   const settings = await apps.getAppSettings(APP_ID)
 
-  const {
-    webhookUsername,
-    webhookPassword,
-    vtexAppKey,
-    vtexAppToken,
-  } = settings
+  const { webhookUsername, webhookPassword, vtexAppKey, vtexAppToken } =
+    settings
 
   const b64auth = (headers.authorization ?? '').split(' ')[1] || ''
-  const [login, password] = Buffer.from(b64auth, 'base64')
-    .toString()
-    .split(':')
+  const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':')
 
   if (login !== webhookUsername || password !== webhookPassword) {
     ctx.status = 401
@@ -57,6 +51,7 @@ const handleAdyenWebhook = async (ctx: Context) => {
     ],
   } = eventData
 
+  // eslint-disable-next-line no-console
   console.log('webhook ==>', {
     merchantReference,
     eventCode,
@@ -79,6 +74,7 @@ const handleAdyenWebhook = async (ctx: Context) => {
       true
     )
 
+    // eslint-disable-next-line no-console
     console.log('webhook savedAuthRequest ==>', authRequest)
   } catch (error) {
     logger.error({
