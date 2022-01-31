@@ -19,5 +19,7 @@
   "admin/adyen.settings.adyenPlatforms.helpText": "Activate to use Adyen for Platforms to processs split payouts. The Adyen for Platforms app must be installed",
   "admin/adyen.saveSettings.buttonText": "Save settings",
   "admin/adyen.saveSettings.success": "Settings have been saved",
-  "admin/adyen.saveSettings.failure": "Error saving settings (see console for details)"
+  "admin/adyen.saveSettings.failure": "Error saving settings (see console for details)",
+  "admin/adyen.settings.adyenProductionAPI.label": "Adyen Production API URI",
+  "admin/adyen.settings.adyenProductionAPI.helpText": "Enter the Adyen production API URI. Ensure that it is in the form of http://{productionURI}.com"
 }

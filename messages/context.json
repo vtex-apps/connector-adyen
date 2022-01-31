@@ -19,5 +19,7 @@
   "admin/adyen.settings.adyenPlatforms.helpText": "admin/adyen.settings.adyenPlatforms.helpText",
   "admin/adyen.saveSettings.buttonText": "admin/adyen.saveSettings.buttonText",
   "admin/adyen.saveSettings.success": "admin/adyen.saveSettings.success",
-  "admin/adyen.saveSettings.failure": "admin/adyen.saveSettings.failure"
+  "admin/adyen.saveSettings.failure": "admin/adyen.saveSettings.failure",
+  "admin/adyen.settings.adyenProductionAPI.label": "admin/adyen.settings.adyenProductionAPI.label",
+  "admin/adyen.settings.adyenProductionAPI.helpText": "admin/adyen.settings.adyenProductionAPI.helpText"
 }

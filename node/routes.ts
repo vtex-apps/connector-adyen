@@ -19,17 +19,11 @@ const handleAdyenWebhook = async (ctx: Context) => {
 
   const settings = await apps.getAppSettings(APP_ID)
 
-  const {
-    webhookUsername,
-    webhookPassword,
-    vtexAppKey,
-    vtexAppToken,
-  } = settings
+  const { webhookUsername, webhookPassword, vtexAppKey, vtexAppToken } =
+    settings
 
   const b64auth = (headers.authorization ?? '').split(' ')[1] || ''
-  const [login, password] = Buffer.from(b64auth, 'base64')
-    .toString()
-    .split(':')
+  const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':')
 
   if (login !== webhookUsername || password !== webhookPassword) {
     ctx.status = 401
@@ -57,13 +51,6 @@ const handleAdyenWebhook = async (ctx: Context) => {
     ],
   } = eventData
 
-  console.log('webhook ==>', {
-    merchantReference,
-    eventCode,
-    pspReference,
-    success,
-    reason,
-  })
   logger.info({
     message: 'Webhook-received',
     data: { merchantReference, eventCode, pspReference, success, reason },
@@ -78,8 +65,6 @@ const handleAdyenWebhook = async (ctx: Context) => {
       paymentId,
       true
     )
-
-    console.log('webhook savedAuthRequest ==>', authRequest)
   } catch (error) {
     logger.error({
       message: 'Webhook-transactionFetchError',

@@ -22,11 +22,11 @@ const handleSplit = async (
   if (!settings.useAdyenPlatforms || !authorization.recipients) return undefined
 
   const { recipients } = authorization
-  const sellers = recipients.filter(s => s.role === 'seller')
+  const sellers = recipients.filter((s) => s.role === 'seller')
 
   if (!sellers.length) return undefined
 
-  const sellerIds = sellers.map(seller => seller.id)
+  const sellerIds = sellers.map((seller) => seller.id)
   const accounts = await ctx.clients.platforms.getAccounts(ctx, sellerIds)
 
   if (!accounts) {

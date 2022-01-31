@@ -60,7 +60,7 @@ const Admin: FC = () => {
         settings: JSON.stringify(settingsState),
       },
     })
-      .catch(err => {
+      .catch((err) => {
         console.error(err)
         showToast({
           message: formatMessage({

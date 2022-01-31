@@ -10,3 +10,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 
 - Quality Engineering Actions.
+- Added adyen account setup documentation

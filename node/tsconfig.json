@@ -22,6 +22,7 @@
   "typeAcquisition": {
     "enable": false
   },
-  "include": ["global.ts", "./**/*"],
-  "exclude": ["node_modules"]
+  "include": ["./typings/*.d.ts", "./**/*.tsx", "./**/*.ts"],
+  "exclude": ["node_modules"],
+  "extends": "@vtex/tsconfig"
 }
