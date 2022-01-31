@@ -21,5 +21,5 @@
   "admin/adyen.saveSettings.success": "Settings have been saved",
   "admin/adyen.saveSettings.failure": "Error saving settings (see console for details)",
   "admin/adyen.settings.adyenProductionAPI.label": "Adyen Production API URI",
-  "admin/adyen.settings.adyenProductionAPI.helpText": "Enter the Adyen production API URI. Ensure that it starts with http"
+  "admin/adyen.settings.adyenProductionAPI.helpText": "Enter the Adyen production API URI. Ensure that it is in the form of http://{productionURI}.com"
 }
