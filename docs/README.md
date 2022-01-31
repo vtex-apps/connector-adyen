@@ -33,7 +33,7 @@ Before you can configure the VTEX Adyen connector, you will need to do the follo
    - Make sure `Service Version` is `1`
    - Make sure the webhook is marked as `active`
    - Make sure `Method` is set to `JSON`
-   - Create a `username` and `password` for the webhook events
+   - Create a `username` and `password` of your choice for the webhook events
 
 ### Installing the App
 
@@ -48,6 +48,19 @@ Before you can configure the VTEX Adyen connector, you will need to do the follo
 9. Repeat steps 8 and 9 for each credit type to be processed with Adyen.
 10. In your admin sidebar, access the **Other** section and click on `Adyen Payments` to enter the app settings.
 11. Complete the settings with the values from your Adyen setup.
+
+
+### App Configurations
+
+1. `Adyen Merchant Account` is the merchant account name. 
+   - Note: This is not the company name.
+2. `Adyen API Key` is the API key that is generated in Step 1 of `Adyen Setup`
+3. `Adyen Production API URI` is the Checkout API's URI.
+   - This can be found in the Developer > API URLs tab in Adyen.
+   - Example: `http://checkout-test.adyen.com`
+   - Note: Please use http instead of https
+4. `Adyen Webhook Username` and `Adyen Webhook Password` is the Username/Password created in Step 4 of `Adyen Setup`
+5. `VTEX App Key/App Token` are app keys/tokens that can found here: `https://{accountName}.myvtex.com/admin/appkeys`
 
 <!-- DOCS-IGNORE:start -->
 

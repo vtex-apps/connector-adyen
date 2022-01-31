@@ -51,14 +51,6 @@ const handleAdyenWebhook = async (ctx: Context) => {
     ],
   } = eventData
 
-  // eslint-disable-next-line no-console
-  console.log('webhook ==>', {
-    merchantReference,
-    eventCode,
-    pspReference,
-    success,
-    reason,
-  })
   logger.info({
     message: 'Webhook-received',
     data: { merchantReference, eventCode, pspReference, success, reason },
@@ -73,9 +65,6 @@ const handleAdyenWebhook = async (ctx: Context) => {
       paymentId,
       true
     )
-
-    // eslint-disable-next-line no-console
-    console.log('webhook savedAuthRequest ==>', authRequest)
   } catch (error) {
     logger.error({
       message: 'Webhook-transactionFetchError',
