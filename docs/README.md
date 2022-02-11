@@ -46,8 +46,8 @@ Before you can configure the VTEX Adyen connector, you will need to do the follo
 7. From the **Credit Card** list, click the card type you want to process using Adyen.
 8. In the `Process with affiliation` dropdown, choose `Adyen Payments` or the name of the affiliation that you created in step 6. Set the status to `Active` and click `Save`. Note that this will activate the payment method in checkout!
 9. Repeat steps 8 and 9 for each credit type to be processed with Adyen.
-10. In your admin sidebar, search `Adyen`. This will bring you to the `Adyen` admin panel to enter the app settings.
-11. Complete the settings with the values from your Adyen setup.
+10. In your admin sidebar, search for `Adyen`. This will bring you to the `Adyen` admin panel to configure the app settings.
+11. Complete the settings with the values from your Adyen setup, following the guide below.
 
 
 ### App Configurations
@@ -60,7 +60,8 @@ Before you can configure the VTEX Adyen connector, you will need to do the follo
    - Example: `http://checkout-test.adyen.com`
    - Note: Please use http instead of https
 4. `Adyen Webhook Username` and `Adyen Webhook Password` is the Username/Password created in Step 4 of `Adyen Setup`
-5. `VTEX App Key/App Token` are app keys/tokens that can found here: `https://{accountName}.myvtex.com/admin/appkeys`. Reference the following documentation for app key generation and configuration. [VTEX Application key Documentation](https://help.vtex.com/en/tutorial/application-keys--2iffYzlvvz4BDMr6WGUtet)
+5. `VTEX App Key/App Token` should be a VTEX application key that has the `Super Admin` role in your account and its associated token. Reference [this documentation](https://help.vtex.com/en/tutorial/application-keys--2iffYzlvvz4BDMr6WGUtet) for app key generation and configuration. 
+  - If you are running Adyen in a marketplace, make sure to grant this application key the same `Super Admin` role on all seller accounts as well. In other words, create the application key on the marketplace account, then go to the `Application Keys` admin panel on each seller account and click `+ Add` to grant the key permissions for that account.
 
 <!-- DOCS-IGNORE:start -->
 
