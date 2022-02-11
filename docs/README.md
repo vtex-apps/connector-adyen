@@ -60,7 +60,7 @@ Before you can configure the VTEX Adyen connector, you will need to do the follo
    - Example: `http://checkout-test.adyen.com`
    - Note: Please use http instead of https
 4. `Adyen Webhook Username` and `Adyen Webhook Password` is the Username/Password created in Step 4 of `Adyen Setup`
-5. `VTEX App Key/App Token` are app keys/tokens that can found here: `https://{accountName}.myvtex.com/admin/appkeys`. Reference the following documentation for app key generation and configuration. [VTEX Application key Documentation](`https://help.vtex.com/en/tutorial/application-keys--2iffYzlvvz4BDMr6WGUtet`)
+5. `VTEX App Key/App Token` are app keys/tokens that can found here: `https://{accountName}.myvtex.com/admin/appkeys`. Reference the following documentation for app key generation and configuration. [VTEX Application key Documentation](https://help.vtex.com/en/tutorial/application-keys--2iffYzlvvz4BDMr6WGUtet)
 
 <!-- DOCS-IGNORE:start -->
 
