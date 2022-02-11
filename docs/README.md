@@ -38,7 +38,7 @@ Before you can configure the VTEX Adyen connector, you will need to do the follo
 ### Installing the App
 
 1. Install this app in the desired account using the CLI command `vtex install vtex.connector-adyen`.
-2. In your admin sidebar, access the **Transactions** section and click `Payments > Settings`.
+2. In your admin sidebar, search for `Payments` and select `Settings` under the `Payments` tab.
 3. Click the `Gateway Affiliations` tab and click the green plus sign to add a new affiliation.
 4. Select `Adyen Payments` from the **Others** list.
 5. Modify the `Affiliation name` if desired, choose an `Auto Settlement` behavior from the dropdown and then click `Save`. Leave `Application Key` and `Application Token` blank.
@@ -46,7 +46,7 @@ Before you can configure the VTEX Adyen connector, you will need to do the follo
 7. From the **Credit Card** list, click the card type you want to process using Adyen.
 8. In the `Process with affiliation` dropdown, choose `Adyen Payments` or the name of the affiliation that you created in step 6. Set the status to `Active` and click `Save`. Note that this will activate the payment method in checkout!
 9. Repeat steps 8 and 9 for each credit type to be processed with Adyen.
-10. In your admin sidebar, access the **Other** section and click on `Adyen Payments` to enter the app settings.
+10. In your admin sidebar, search `Adyen`. This will bring you to the `Adyen` admin panel to enter the app settings.
 11. Complete the settings with the values from your Adyen setup.
 
 
@@ -60,7 +60,7 @@ Before you can configure the VTEX Adyen connector, you will need to do the follo
    - Example: `http://checkout-test.adyen.com`
    - Note: Please use http instead of https
 4. `Adyen Webhook Username` and `Adyen Webhook Password` is the Username/Password created in Step 4 of `Adyen Setup`
-5. `VTEX App Key/App Token` are app keys/tokens that can found here: `https://{accountName}.myvtex.com/admin/appkeys`
+5. `VTEX App Key/App Token` are app keys/tokens that can found here: `https://{accountName}.myvtex.com/admin/appkeys`. Reference the following documentation for app key generation and configuration. [VTEX Application key Documentation](`https://help.vtex.com/en/tutorial/application-keys--2iffYzlvvz4BDMr6WGUtet`)
 
 <!-- DOCS-IGNORE:start -->
 
