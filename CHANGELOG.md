@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+
+- Move error logging to connector from clients
+
+### Added
+
+- Admin navigation restrictions
+- Error logging
+
 ## [0.1.2] - 2022-02-11
 
 ## [0.1.1] - 2022-01-31

@@ -87,7 +87,17 @@ export default class Adyen extends PaymentProvider<Clients> {
       settings,
     })
 
-    const adyenResponse = await adyen.payment(adyenPaymentRequest)
+    let adyenResponse = null
+
+    try {
+      adyenResponse = await adyen.payment(adyenPaymentRequest)
+    } catch (error) {
+      logger.error({
+        error,
+        message: 'connectorAdyen-adyenPaymentRequestError',
+        data: adyenPaymentRequest.data,
+      })
+    }
 
     if (!adyenResponse) {
       return Authorizations.deny(authorization as CardAuthorization, {
@@ -190,14 +200,28 @@ export default class Adyen extends PaymentProvider<Clients> {
 
     const settings: AppSettings = await apps.getAppSettings(APP_ID)
 
-    await adyen.cancel(
-      cancellation.authorizationId,
-      {
-        merchantAccount: settings.merchantAccount,
-        reference: cancellation.paymentId,
-      },
-      settings
-    )
+    try {
+      await adyen.cancel(
+        cancellation.authorizationId,
+        {
+          merchantAccount: settings.merchantAccount,
+          reference: cancellation.paymentId,
+        },
+        settings
+      )
+    } catch (error) {
+      logger.error({
+        error,
+        message: 'connectorAdyen-adyenCancelRequestError',
+        data: {
+          pspReference: cancellation.authorizationId,
+          request: {
+            merchantAccount: settings.merchantAccount,
+            reference: cancellation.paymentId,
+          },
+        },
+      })
+    }
 
     return {
       ...cancellation,
@@ -272,8 +296,8 @@ export default class Adyen extends PaymentProvider<Clients> {
 
     if (!adyenAuth) {
       logger.error({
-        message: 'connectorAdyen-adyenAuthNotFound',
-        data: { refund, adyenAuth },
+        message: 'connectorAdyen-refundError-AdyenAuthNotFound',
+        data: { refund },
       })
 
       throw new Error('Missing transaction data')
@@ -285,7 +309,18 @@ export default class Adyen extends PaymentProvider<Clients> {
       authorization: adyenAuth,
     })
 
-    await adyen.refund(refundRequest)
+    try {
+      await adyen.refund(refundRequest)
+    } catch (error) {
+      logger.error({
+        error,
+        message: 'connectorAdyen-adyenRefundRequestError',
+        data: {
+          pspReference: refundRequest.pspReference,
+          request: refundRequest.data,
+        },
+      })
+    }
 
     return {
       ...refund,
@@ -361,7 +396,7 @@ export default class Adyen extends PaymentProvider<Clients> {
 
     if (!adyenAuth) {
       logger.error({
-        message: 'connectorAdyen-adyenAuthNotFound',
+        message: 'connectorAdyen-settleError-adyenAuthNotFound',
         data: { settlement, adyenAuth },
       })
 
@@ -374,7 +409,18 @@ export default class Adyen extends PaymentProvider<Clients> {
       authorization: adyenAuth,
     })
 
-    await adyen.capture(adyenCaptureRequest)
+    try {
+      await adyen.capture(adyenCaptureRequest)
+    } catch (error) {
+      logger.error({
+        error,
+        message: 'connectorAdyen-adyenSettleRequestError',
+        data: {
+          pspReference: adyenCaptureRequest.pspReference,
+          request: adyenCaptureRequest.data,
+        },
+      })
+    }
 
     return {
       ...settlement,

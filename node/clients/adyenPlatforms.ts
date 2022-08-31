@@ -11,24 +11,11 @@ export default class Platforms extends ExternalClient {
   }
 
   public async getAccounts(ctx: Context, sellers: string[]): Promise<any> {
-    try {
-      return await this.http.get(
-        `/v0/account?seller=${sellers.join('&seller=')}`,
-        {
-          headers: {
-            VtexIdclientAutCookie: ctx.vtex.authToken,
-          },
-          metric: 'connectorAdyen-getAccounts',
-        }
-      )
-    } catch (error) {
-      this.context.logger.error({
-        error,
-        message: 'connectorAdyen-getAccountsRequest',
-        data: { sellers },
-      })
-
-      return null
-    }
+    return this.http.get(`/v0/account?seller=${sellers.join('&seller=')}`, {
+      headers: {
+        VtexIdclientAutCookie: ctx.vtex.authToken,
+      },
+      metric: 'connectorAdyen-getAccounts',
+    })
   }
 }
