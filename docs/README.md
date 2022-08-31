@@ -29,7 +29,7 @@ Before you can configure the VTEX Adyen connector, you will need to do the follo
 3. In Merchant Settings, update the Capture Delay option to `manual`. This allows VTEX to handle payment capture timing.
 4. Create a Standard Notification Webhook
    - Use `https://{accountName}.myvtex.com/_v/api/connector-adyen/v0/hook` for the URL
-      - Example: `https://mysampleshop.myvtex.com/_v/api/connector-adyen/v0/hook`
+     - Example: `https://mysampleshop.myvtex.com/_v/api/connector-adyen/v0/hook`
    - Make sure `Service Version` is `1`
    - Make sure the webhook is marked as `active`
    - Make sure `Method` is set to `JSON`
@@ -49,10 +49,11 @@ Before you can configure the VTEX Adyen connector, you will need to do the follo
 10. In your admin sidebar, search for `Adyen`. This will bring you to the `Adyen` admin panel to configure the app settings.
 11. Complete the settings with the values from your Adyen setup, following the guide below.
 
-
 ### App Configurations
 
-1. `Adyen Merchant Account` is the merchant account name. 
+> ⚠️ _Only users with access to the **Payments** section in the VTEX admin (or assigned the **PCI Gateway** role in License Manager) will be able to configure the app._
+
+1. `Adyen Merchant Account` is the merchant account name.
    - Note: This is not the company name.
 2. `Adyen API Key` is the API key that is generated in Step 1 of `Adyen Setup`
 3. `Adyen Production API URI` is the Checkout API's URI.
@@ -60,8 +61,9 @@ Before you can configure the VTEX Adyen connector, you will need to do the follo
    - Example: `http://checkout-test.adyen.com`
    - Note: Please use http instead of https
 4. `Adyen Webhook Username` and `Adyen Webhook Password` is the Username/Password created in Step 4 of `Adyen Setup`
-5. `VTEX App Key/App Token` should be a VTEX application key that has the `Super Admin` role in your account and its associated token. Reference [this documentation](https://help.vtex.com/en/tutorial/application-keys--2iffYzlvvz4BDMr6WGUtet) for app key generation and configuration. 
-  - If you are running Adyen in a marketplace, make sure to grant this application key the same `Super Admin` role on all seller accounts as well. In other words, create the application key on the marketplace account, then go to the `Application Keys` admin panel on each seller account and click `+ Add` to grant the key permissions for that account.
+5. `VTEX App Key/App Token` should be a VTEX application key that has the `Super Admin` role in your account and its associated token. Reference [this documentation](https://help.vtex.com/en/tutorial/application-keys--2iffYzlvvz4BDMr6WGUtet) for app key generation and configuration.
+
+- If you are running Adyen in a marketplace, make sure to grant this application key the same `Super Admin` role on all seller accounts as well. In other words, create the application key on the marketplace account, then go to the `Application Keys` admin panel on each seller account and click `+ Add` to grant the key permissions for that account.
 
 <!-- DOCS-IGNORE:start -->
 
