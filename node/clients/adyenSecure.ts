@@ -17,29 +17,17 @@ export default class AdyenSecure extends SecureExternalClient {
     settings,
     secureProxyUrl,
   }: AdyenPaymentRequest): Promise<AdyenPaymentResponse | null> {
-    try {
-      const response = await this.http.postRaw<AdyenPaymentResponse>(
-        `/checkout/v67/payments`,
-        data,
-        {
-          headers: {
-            'X-API-Key': settings.apiKey,
-            'X-Vtex-Use-Https': 'true',
-          },
-          secureProxy: secureProxyUrl,
-          metric: 'connectorAdyen-payment',
-        } as RequestConfig
-      )
-
-      return response.data
-    } catch (error) {
-      this.context.logger.error({
-        error,
-        message: 'connectorAdyen-adyenPaymentRequest',
-        data,
-      })
-
-      return null
-    }
+    return this.http.post<AdyenPaymentResponse>(
+      `/checkout/v67/payments`,
+      data,
+      {
+        headers: {
+          'X-API-Key': settings.apiKey,
+          'X-Vtex-Use-Https': 'true',
+        },
+        secureProxy: secureProxyUrl,
+        metric: 'connectorAdyen-payment',
+      } as RequestConfig
+    )
   }
 }

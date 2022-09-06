@@ -26,11 +26,26 @@ const handleSplit = async (
 
   if (!sellers.length) return undefined
 
+  const {
+    clients: { platforms },
+    vtex: { logger },
+  } = ctx
+
   const sellerIds = sellers.map((seller) => seller.id)
-  const accounts = await ctx.clients.platforms.getAccounts(ctx, sellerIds)
+  let accounts: any = null
+
+  try {
+    accounts = await platforms.getAccounts(ctx, sellerIds)
+  } catch (error) {
+    logger.error({
+      error,
+      message: 'connectorAdyen-getAccountsRequestError',
+      data: { sellerIds },
+    })
+  }
 
   if (!accounts) {
-    ctx.vtex.logger.warn({
+    logger.warn({
       message: 'connectorAdyen-NoSplitAccountsReturned',
       data: { recipients },
     })

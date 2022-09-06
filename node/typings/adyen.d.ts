@@ -69,25 +69,6 @@ interface CheckoutAwaitAction {
   url: string
 }
 
-// interface AdyenPaymentMethodResponse {
-//   paymentMethods: any[]
-//   storedPaymentMethods: any[]
-// }
-
-// interface AdyenPaymentMethod {
-//   merchantAccount: string
-//   allowedPaymentMethods?: string[]
-//   amount?: Amount
-//   blockedPaymentMethods?: string[]
-//   channel?: string
-//   countryCode: string
-//   order: Order
-//   shopperLocale: string
-//   shopperReference: string
-//   splitCardFundingSources: string
-//   store: string
-// }
-
 interface AdyenPayment {
   merchantAccount: string
   amount: Amount
@@ -100,11 +81,6 @@ interface Amount {
   currency: string
   value: number
 }
-
-// interface Order {
-//   orderData: string
-//   pspReference: number
-// }
 
 interface PaymentType {
   type: string

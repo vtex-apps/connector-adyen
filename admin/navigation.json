@@ -1,7 +1,26 @@
- 
-{
-    "section": "other",
-    "path": "/admin/adyen",
-    "icon": "extensions-ic",
-    "titleId": "admin/adyen.admin-menu-button"
+[
+  {
+    "section": "transactions",
+    "subSection": "payments",
+    "LMProductId": "6",
+    "subSectionItems": [
+      {
+        "labelId": "admin/adyen.admin-menu-button",
+        "path": "/admin/adyen"
+      }
+    ],
+    "icon": "extensions-ic"
+  },
+  {
+    "adminVersion": 4,
+    "section": "storeSettings",
+    "subSection": "payment",
+    "LMProductId": "6",
+    "subSectionItems": [
+      {
+        "labelId": "admin/adyen.admin-menu-button",
+        "path": "/admin/adyen"
+      }
+    ]
   }
+]
