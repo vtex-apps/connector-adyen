@@ -1,0 +1,131 @@
+---
+base:
+  secrets:
+    enabled: true
+    name: VTEX_QE
+  vtex:
+    account: productusqa
+    id: 2001459804
+    domain: myvtex.com
+    urlExternalSeller: https://productusqaseller.myvtex.com
+    vtexIdUrl: https://vtexid.vtex.com.br/api/vtexid/pub/authenticate/default
+  jira:
+    enabled: true
+    account: vtex-dev
+    board: ADYENPAY
+    issueType: Bug
+    priority: High
+  slack:
+    enabled: false
+    channel: some-channel
+  cypress:
+    devMode: false
+    runHeaded: false
+    projectId: ws3p76
+    getCookies: true
+    maxJobs: 2
+    quiet: true
+    video: false
+    videoCompression: false
+    videoUploadOnPasses: false
+    screenshotOnRunFailure: true
+    trashAssetsBeforeRuns: false
+    viewportWidth: 1440
+    viewportHeight: 1500
+    defaultCommandTimeout: 25000
+    requestTimeout: 25000
+    watchForFileChanges: false
+    pageLoadTimeout: 45000
+    browser: chrome
+    chromeWebSecurity: false
+  stateFiles: [.orders.json, .accountholder.json, .accounttoken.json, .webhook.json, .accountholderCode.json]
+  keepStateFiles: true
+
+workspace:
+  name: random
+  prefix: adyen
+  linkApp:
+    enabled: true
+  installApps: 
+     - vtex.connector-adyen
+     - vtex.adyen-platforms
+  removeApps: []
+  wipe:
+    enabled: true
+    stopOnFail: false
+    specs:
+      - cypress-shared/integration/adyen/wipe.spec.js
+  teardown:
+    enabled: true
+
+strategy:
+  # # The strategies must be in order, with dependent tests last
+  post_setup:
+    enabled: true
+    sendDashboard: true
+    hardTries: 1
+    stopOnFail: true
+    parallel: false
+    specs:
+      - cypress-shared/integration/adyen/post-setup.spec.js
+  graphql_tests:
+    enabled: true
+    sendDashboard: true
+    hardTries: 1
+    stopOnFail: true
+    parallel: false
+    specs:
+      - cypress-shared/integration/adyen/2.1-graphql_testcases.spec.js
+    dependency:
+      - cypress-shared/integration/adyen/post-setup.spec.js
+  rest_api_tests:
+    enabled: true
+    sendDashboard: true
+    hardTries: 1
+    stopOnFail: true
+    parallel: false
+    specs:
+      - cypress-shared/integration/adyen/2.11-rest-apis.spec.js
+    dependency:
+      - cypress-shared/integration/adyen/post-setup.spec.js
+  product_tests:
+    enabled: true
+    sendDashboard: true
+    hardTries: 3
+    stopOnFail: true
+    parallel: true
+    specs:
+      - cypress-shared/integration/adyen/2.2-singleProduct.spec.js
+      - cypress-shared/integration/adyen/2.3-multiProduct.spec.js
+      - cypress-shared/integration/adyen/2.4-discountProduct.spec.js
+      - cypress-shared/integration/adyen/2.5-externalSeller.spec.js
+      - cypress-shared/integration/adyen/2.6-discountShipping.spec.js 
+      - cypress-shared/integration/adyen/2.7-promotionalProduct.spec.js
+    dependency:
+      - cypress-shared/integration/adyen/2.1-graphql_testcases.spec.js
+  transaction_api_tests:
+    enabled: true
+    sendDashboard: true
+    hardTries: 1
+    stopOnFail: true
+    parallel: true
+    specs:
+      - cypress-shared/integration/adyen/2.8-transactions.spec.js
+    dependency:
+      - cypress-shared/integration/adyen/2.2-singleProduct.spec.js
+      - cypress-shared/integration/adyen/2.3-multiProduct.spec.js
+      - cypress-shared/integration/adyen/2.4-discountProduct.spec.js
+      - cypress-shared/integration/adyen/2.5-externalSeller.spec.js
+      - cypress-shared/integration/adyen/2.6-discountShipping.spec.js 
+      - cypress-shared/integration/adyen/2.7-promotionalProduct.spec.js
+  refund_api_tests:
+    enabled: true
+    sendDashboard: true
+    hardTries: 3
+    stopOnFail: true
+    parallel: true
+    specs:
+      - cypress-shared/integration/adyen/2.9-fullRefund-transaction.spec.js
+      - cypress-shared/integration/adyen/2.10-partialRefund.spec.js
+    dependency:
+      - cypress-shared/integration/adyen/2.8-transactions.spec.js
