@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+
+- cy-runner is added for cypress e2e automation
+
 ### Changed
 
 - GitHub reusable workflow uptaded to v2
