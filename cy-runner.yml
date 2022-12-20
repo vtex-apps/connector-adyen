@@ -64,7 +64,7 @@ strategy:
     enabled: true
     sendDashboard: true
     hardTries: 1
-    stopOnFail: true
+    stopOnFail: false
     parallel: false
     specs:
       - cypress-shared/integration/adyen/post-setup.spec.js
@@ -72,7 +72,7 @@ strategy:
     enabled: true
     sendDashboard: true
     hardTries: 1
-    stopOnFail: true
+    stopOnFail: false
     parallel: false
     specs:
       - cypress-shared/integration/adyen/2.1-graphql_testcases.spec.js
@@ -82,7 +82,7 @@ strategy:
     enabled: true
     sendDashboard: true
     hardTries: 1
-    stopOnFail: true
+    stopOnFail: false
     parallel: false
     specs:
       - cypress-shared/integration/adyen/2.11-rest-apis.spec.js
@@ -92,7 +92,7 @@ strategy:
     enabled: true
     sendDashboard: true
     hardTries: 3
-    stopOnFail: true
+    stopOnFail: false
     parallel: true
     specs:
       - cypress-shared/integration/adyen/2.2-singleProduct.spec.js
@@ -107,7 +107,7 @@ strategy:
     enabled: true
     sendDashboard: true
     hardTries: 1
-    stopOnFail: true
+    stopOnFail: false
     parallel: true
     specs:
       - cypress-shared/integration/adyen/2.8-transactions.spec.js
@@ -122,7 +122,7 @@ strategy:
     enabled: true
     sendDashboard: true
     hardTries: 3
-    stopOnFail: true
+    stopOnFail: false
     parallel: true
     specs:
       - cypress-shared/integration/adyen/2.9-fullRefund-transaction.spec.js
