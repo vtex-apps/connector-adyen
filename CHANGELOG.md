@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
+- updated cy-runner.yml file in connector adyen
+
+### Added
+
 - cy-runner is added for cypress e2e automation
 
 ### Changed
