@@ -44,6 +44,8 @@ base:
 workspace:
   name: random
   prefix: adyen
+  reserveAccount:
+    enabled: true
   linkApp:
     enabled: true
   installApps: 
